@@ -35,6 +35,20 @@ confirmado figura como «pendiente de verificar».
 OpenGameArt muestra el campo «License(s): CC0» en cada página; CC0 no exige
 atribución, pero se registra el autor por trazabilidad.
 
+## Aportados por el usuario (home) — LICENCIA POR VERIFICAR
+
+| asset | archivo origen | autor | licencia | uso comercial | verificado |
+|---|---|---|---|---|---|
+| statue.angel_vcu | angel_for_linda_sizer_grave_vcu_3d_5697.glb | desconocido | por verificar | por verificar | NO |
+| statue.angel_frances | cemetery_angel_-_frances.glb | desconocido | por verificar | por verificar | NO |
+| statue.wooden_angel | wooden_angel_sculpture.glb | desconocido | por verificar | por verificar | NO |
+| statue.monument_angel | angel_good_pics_only.glb | desconocido | por verificar | por verificar | NO |
+| props.fountain_putti | fountain_with_three_putts_brno_luzanky.glb | desconocido | por verificar | por verificar | NO |
+
+Los nombres sugieren escaneos de colecciones abiertas (p. ej. VCU 3D) y fuentes
+públicas, pero **no se ha confirmado** la licencia de cada fichero. Acción
+pendiente: aportar la URL/origen y licencia de cada modelo.
+
 ## Pendientes de verificación (no descargado)
 
 | candidato | fuente | motivo / bloqueo |

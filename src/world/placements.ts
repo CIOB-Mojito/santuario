@@ -29,5 +29,11 @@ export const PLACEMENTS: Readonly<Record<string, Placement>> = {
   'props.grave.3': { position: [-13, 0, 10], rotationY: 0.5, targetHeight: 1.2 },
   'props.grave.4': { position: [-16, 0, 15], rotationY: -0.6, targetHeight: 1.4 },
   'props.grave.5': { position: [11, 0, 20], rotationY: 0.1, targetHeight: 1.2 },
-  'props.grave.6': { position: [-12, 0, 22], rotationY: -0.2, targetHeight: 1.5 }
+  'props.grave.6': { position: [-12, 0, 22], rotationY: -0.2, targetHeight: 1.5 },
+
+  'statue.angel_vcu': { position: [-26, 0, -4], rotationY: 0.6, targetHeight: 2.4, label: 'Angel de piedra' },
+  'statue.angel_frances': { position: [26, 0, -10], rotationY: -0.7, targetHeight: 2.4, label: 'Angel del recuerdo' },
+  'statue.wooden_angel': { position: [-6.6, 0.4, -10], rotationY: 1.4, targetHeight: 3.6, label: 'Angel de madera' },
+  'statue.monument_angel': { position: [-34, 0, 26], rotationY: 0.4, targetHeight: 9, label: 'Monumento antiguo' },
+  'props.fountain_putti': { position: [0, 0, 22], rotationY: 0, targetHeight: 3.6, label: 'Fuente de los putti' }
 };

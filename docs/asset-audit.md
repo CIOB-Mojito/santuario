@@ -33,12 +33,21 @@ Fecha: 2026-10-12. Generada a partir del estado real del repositorio
 | props.tomb | GLB | public/assets/props/tomb.glb | 9.5 KB | CC0 |
 | props.candles | GLB | public/assets/props/candles.glb | 10.6 KB | CC0 |
 | props.grave.1..6 | GLB | public/assets/props/grave_1..6.glb | 1.8–3.8 KB | CC0 |
+| statue.angel_vcu | GLB | public/assets/statues/angel_vcu.glb | 1.19 MB (33.951 tris) | por verificar |
+| statue.angel_frances | GLB | public/assets/statues/angel_frances.glb | 2.38 MB (34.954 tris) | por verificar |
+| statue.wooden_angel | GLB | public/assets/statues/wooden_angel.glb | 1.76 MB (27.761 tris) | por verificar |
+| statue.monument_angel | GLB | public/assets/statues/monument_angel.glb | 3.97 MB (66.066 tris) | por verificar |
+| props.fountain_putti | GLB | public/assets/props/fountain_putti.glb | 3.13 MB (31.176 tris) | por verificar |
 
 Los modelos se descargan de OpenGameArt (CC0), se convierten a GLB con
 `libassimp.so` vía `tools/convert-model.py` y se optimizan con
 `gltf-transform` (la estatua pasa de 66 MB / 425k tris a 0.58 MB / 17k tris).
 Se colocan desde `src/world/placements.ts` y sustituyen las esculturas y velas
 provisionales.
+
+Además, el usuario aportó cinco GLB (ángeles y una fuente) que se optimizaron
+con `tools/optimize-glb.sh` (33k–66k tris, texturas a 512 px; ver
+`docs/asset-sources.md`). **Su licencia está por verificar.**
 
 Las 6 texturas PBR están **integradas**: se aplican a los materiales de la nave
 (muros, suelo, madera, yeso, mármol, oro) al arrancar y el HDRI alimenta la
@@ -59,13 +68,14 @@ iluminación ambiental (`scene.environment`). Verificación: `npm run check` ok
 
 ### DESCARGA PENDIENTE
 
-- Ángel funerario de mayor calidad (protagonista) que el caballero yacente.
 - Props ornamentales adicionales (relicarios, incensarios).
 - Audio ambiental con licencia verificada.
 - Modelos de arquitectura complementaria (arcos, nervaduras, frisos).
 
 ### LICENCIA PENDIENTE DE VERIFICACIÓN
 
+- Cinco GLB aportados por el usuario en la home (ángeles y fuente): sin página
+  ni licencia registrada todavía.
 - Sketchfab (Jim Wing "Stone Angel Statue" y similares): requiere cuenta de
   autorización; **bloqueado** hasta confirmar licencia y descarga.
 - Fab (Gothic Cathedral Environment): requiere cuenta/login; no se puede

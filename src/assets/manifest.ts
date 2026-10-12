@@ -30,6 +30,51 @@ export const ASSETS: readonly AssetDescriptor[] = [
     notes: 'Huesped v2, alta densidad (aportado por el colaborador)'
   },
   {
+    id: 'statue.angel_vcu',
+    kind: 'statue',
+    url: 'assets/statues/angel_vcu.glb',
+    priority: 'high',
+    bytes: 1190112,
+    maxDistance: 100,
+    notes: 'Angel de sepultura (escaneo; aportado por el usuario, licencia por verificar)'
+  },
+  {
+    id: 'statue.angel_frances',
+    kind: 'statue',
+    url: 'assets/statues/angel_frances.glb',
+    priority: 'high',
+    bytes: 2384788,
+    maxDistance: 110,
+    notes: 'Angel de cementerio "Frances" (escaneo; aportado por el usuario, licencia por verificar)'
+  },
+  {
+    id: 'statue.wooden_angel',
+    kind: 'statue',
+    url: 'assets/statues/wooden_angel.glb',
+    priority: 'medium',
+    bytes: 1762780,
+    maxDistance: 90,
+    notes: 'Escultura de angel en madera (aportado por el usuario, licencia por verificar)'
+  },
+  {
+    id: 'statue.monument_angel',
+    kind: 'statue',
+    url: 'assets/statues/monument_angel.glb',
+    priority: 'low',
+    bytes: 3973224,
+    maxDistance: 200,
+    notes: 'Monumento con angel (escaneo grande; aportado por el usuario, licencia por verificar)'
+  },
+  {
+    id: 'props.fountain_putti',
+    kind: 'prop',
+    url: 'assets/props/fountain_putti.glb',
+    priority: 'medium',
+    bytes: 3133252,
+    maxDistance: 160,
+    notes: 'Fuente con tres putti, Brno Luzanky (aportado por el usuario, licencia por verificar)'
+  },
+  {
     id: 'statue.marble',
     kind: 'statue',
     url: 'assets/statues/marble_statue.glb',

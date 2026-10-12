@@ -78,6 +78,24 @@ Pendiente (no descargable sin cuenta): un ángel funerario de mayor calidad
 la estatua `Daniel Andersson`. Fuentes aún por rastrear: Smithsonian (403 desde
 este entorno; requiere clave de API o User-Agent no bloqueado).
 
+## Modelos aportados por el usuario (home)
+
+El usuario dejó en el home cinco GLB (escaneos) para integrar. Se optimizaron
+con `tools/optimize-glb.sh` (gltf-transform; decimado + texturas a 512 px):
+
+| id | archivo origen (home) | tris | GLB final | notas |
+|---|---|---|---|---|
+| statue.angel_vcu | angel_for_linda_sizer_grave_vcu_3d_5697.glb | 33.951 | 1.19 MB | angel de sepultura |
+| statue.angel_frances | cemetery_angel_-_frances.glb | 34.954 | 2.38 MB | angel de cementerio |
+| statue.wooden_angel | wooden_angel_sculpture.glb | 27.761 | 1.76 MB | angel de madera |
+| statue.monument_angel | angel_good_pics_only.glb | 66.066 | 3.97 MB | monumento grande |
+| props.fountain_putti | fountain_with_three_putts_brno_luzanky.glb | 31.176 | 3.13 MB | fuente con putti |
+
+**Licencia por verificar**: el usuario aportó los ficheros (parecen escaneos,
+alguno de colecciones abiertas tipo VCU 3D), pero no se ha registrado aún la
+página y licencia de origen de cada uno. Queda pendiente confirmarlo antes de
+publicar. Se documenta en `docs/asset-license-report.md`.
+
 ## Criterio de selección (sec. 4 de o.txt)
 
 Combinación de calidad visual, polígonos, texturas PBR, escala, licencia,

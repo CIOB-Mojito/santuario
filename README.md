@@ -61,6 +61,11 @@ Modelos (OpenGameArt, CC0; convertidos/optimizados): `statues/marble_statue.glb`
 (Paul Wortmann), `props/tomb.glb` (zerberros), `props/candles.glb` (AnyRPG) y
 `props/grave_1..6.glb` (Savino).
 
+Modelos aportados por el usuario (escaneos; licencia por verificar):
+`statues/angel_vcu.glb`, `statues/angel_frances.glb`,
+`statues/wooden_angel.glb`, `statues/monument_angel.glb` y
+`props/fountain_putti.glb`. Optimizados con `tools/optimize-glb.sh`.
+
 Modelos del colaborador (licencia por verificar): `characters/Huesped.glb` y
 `Huesped-v2.glb`.
 
