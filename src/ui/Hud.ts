@@ -1,105 +1,76 @@
 import type { QualityLevel } from '../config/quality';
 
-export interface HudStats {
-  fps: number;
-  frameMs: number;
-  drawCalls: number;
-  triangles: number;
-  geometries: number;
-  textures: number;
-  zone: string;
-}
-
-const LEVELS: QualityLevel[] = ['LOW', 'MEDIUM', 'HIGH', 'ULTRA'];
-
 /**
- * Panel de desarrollo discreto. Se oculta por defecto; el boton superior
- * permite abrirlo y cambiar la calidad a mano, util sobre todo en movil.
+ * Interfaz minima y no intrusiva (seccion 36): nombre de la zona, linea de
+ * narrativa y boton de calidad. Nada de menus que tapen la vista.
  */
 export class Hud {
-  private readonly root: HTMLElement;
-  private readonly panel: HTMLElement;
-  private readonly statsEl: HTMLElement;
-  private readonly zoneEl: HTMLElement;
-  private readonly buttons = new Map<QualityLevel, HTMLButtonElement>();
-  private readonly onQuality: (level: QualityLevel) => void;
-  private open = false;
+  private readonly root = document.createElement('div');
+  private readonly zoneLabel = document.createElement('div');
+  private readonly narrative = document.createElement('div');
+  private readonly qualityButton = document.createElement('button');
+  private hideTimer = 0;
 
-  constructor(onQuality: (level: QualityLevel) => void) {
-    this.onQuality = onQuality;
+  constructor(onCycleQuality: (event: Event) => void) {
+    const style = this.root.style;
+    style.position = 'fixed';
+    style.top = 'max(14px, env(safe-area-inset-top))';
+    style.left = '14px';
+    style.zIndex = '30';
+    style.pointerEvents = 'none';
+    style.font = '13px system-ui, sans-serif';
+    style.color = '#e8e2d4';
+    style.textShadow = '0 1px 3px rgba(0,0,0,0.7)';
 
-    this.root = document.createElement('div');
-    this.root.style.cssText =
-      'position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:10px;z-index:10;' +
-      'font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:#dfe7f0;' +
-      'pointer-events:none;user-select:none;-webkit-user-select:none';
+    this.zoneLabel.style.fontWeight = '600';
+    this.zoneLabel.style.letterSpacing = '0.04em';
 
-    const toggle = document.createElement('button');
-    toggle.textContent = 'panel';
-    toggle.style.cssText =
-      'pointer-events:auto;font:inherit;color:#dfe7f0;background:rgba(10,16,22,.6);' +
-      'border:1px solid rgba(160,190,220,.35);border-radius:8px;padding:6px 10px;' +
-      'backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)';
-    toggle.addEventListener('click', () => this.toggle());
+    this.narrative.style.marginTop = '6px';
+    this.narrative.style.maxWidth = 'min(78vw, 420px)';
+    this.narrative.style.lineHeight = '1.45';
+    this.narrative.style.opacity = '0';
+    this.narrative.style.transition = 'opacity 0.8s ease';
 
-    const panel = document.createElement('div');
-    panel.style.cssText =
-      'margin-top:8px;padding:10px 12px;max-width:min(78vw,320px);display:none;' +
-      'background:rgba(8,12,17,.72);border:1px solid rgba(160,190,220,.25);border-radius:10px;' +
-      'backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);white-space:pre-line';
+    this.qualityButton.type = 'button';
+    this.qualityButton.style.marginTop = '10px';
+    this.qualityButton.style.pointerEvents = 'auto';
+    this.qualityButton.style.padding = '6px 12px';
+    this.qualityButton.style.borderRadius = '999px';
+    this.qualityButton.style.border = '1px solid rgba(255,240,214,0.4)';
+    this.qualityButton.style.background = 'rgba(20,26,34,0.5)';
+    this.qualityButton.style.color = '#e8e2d4';
+    this.qualityButton.style.font = 'inherit';
+    this.qualityButton.style.cursor = 'pointer';
+    this.qualityButton.addEventListener('click', onCycleQuality);
 
-    this.statsEl = document.createElement('div');
-
-    const zoneLine = document.createElement('div');
-    zoneLine.style.cssText = 'margin-top:8px;opacity:.85';
-    this.zoneEl = document.createElement('span');
-
-    const qual = document.createElement('div');
-    qual.style.cssText = 'margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:auto';
-    for (const level of LEVELS) {
-      const b = document.createElement('button');
-      b.textContent = level;
-      b.style.cssText =
-        'font:inherit;color:#dfe7f0;background:rgba(30,42,56,.7);border:1px solid rgba(160,190,220,.3);' +
-        'border-radius:7px;padding:5px 9px';
-      b.addEventListener('click', () => this.onQuality(level));
-      this.buttons.set(level, b);
-      qual.appendChild(b);
-    }
-
-    zoneLine.append('Zona: ', this.zoneEl);
-    panel.append(this.statsEl, zoneLine, qual);
-    this.root.append(toggle, panel);
-    document.body.appendChild(this.root);
-    this.panel = panel;
+    this.root.append(this.zoneLabel, this.narrative, this.qualityButton);
   }
 
-  toggle(): void {
-    this.open = !this.open;
-    this.panel.style.display = this.open ? 'block' : 'none';
+  mount(parent: HTMLElement): void {
+    parent.append(this.root);
   }
 
-  setQualityLevel(level: QualityLevel): void {
-    for (const [lvl, button] of this.buttons) {
-      button.style.borderColor = lvl === level ? '#e8c46a' : 'rgba(160,190,220,.3)';
-      button.style.color = lvl === level ? '#ffe9ad' : '#dfe7f0';
-    }
+  setZone(name: string): void {
+    this.zoneLabel.textContent = name;
   }
 
-  setStats(stats: HudStats): void {
-    if (!this.open) return;
-    this.statsEl.textContent =
-      `fps        ${stats.fps.toFixed(0).padStart(3)}\n` +
-      `frame      ${stats.frameMs.toFixed(1)} ms\n` +
-      `draw calls ${stats.drawCalls}\n` +
-      `triangles  ${stats.triangles.toLocaleString('es')}\n` +
-      `geometrias ${stats.geometries}\n` +
-      `texturas   ${stats.textures}`;
-    this.zoneEl.textContent = stats.zone;
+  setQuality(level: QualityLevel): void {
+    this.qualityButton.textContent = `Calidad: ${level.replace('QUALITY_', '').toLowerCase()}`;
+  }
+
+  showNarrative(text: string): void {
+    this.narrative.textContent = text;
+    this.narrative.style.opacity = '1';
+    this.hideTimer = 9;
+  }
+
+  update(dt: number): void {
+    if (this.hideTimer <= 0) return;
+    this.hideTimer -= dt;
+    if (this.hideTimer <= 0) this.narrative.style.opacity = '0';
   }
 
   dispose(): void {
     this.root.remove();
-    this.buttons.clear();
   }
 }

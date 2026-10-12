@@ -2,12 +2,13 @@ import * as THREE from 'three';
 import type { QualityProfile } from '../config/quality';
 
 /**
- * Envuelve WebGLRenderer. El renderer no conoce nada del mundo: solo recibe
- * escena y camara. El cambio de antialias requiere recrear, por eso applyProfile
- * lo documenta en vez de mentir cambiandolo en caliente.
+ * Envuelve WebGLRenderer. No conoce el mundo ni la camara: solo recibe ambos.
+ * Documenta una limitacion real: el antialias se fija al crear el contexto y
+ * no puede cambiarse en caliente; el resto del perfil si se aplica en vivo.
  */
 export class Renderer {
   readonly gl: THREE.WebGLRenderer;
+  readonly canvas: HTMLCanvasElement;
 
   constructor(profile: QualityProfile) {
     this.gl = new THREE.WebGLRenderer({
@@ -15,6 +16,7 @@ export class Renderer {
       powerPreference: 'high-performance',
       stencil: false
     });
+    this.canvas = this.gl.domElement;
     this.gl.setClearColor(0x0a0e14, 1);
     this.applyProfile(profile);
   }
@@ -42,16 +44,20 @@ export class Renderer {
     return this.gl.info.render.triangles;
   }
 
-  get programs(): number {
-    return this.gl.info.programs?.length ?? 0;
-  }
-
   get geometries(): number {
     return this.gl.info.memory.geometries;
   }
 
   get textures(): number {
     return this.gl.info.memory.textures;
+  }
+
+  get programs(): number {
+    return this.gl.info.programs?.length ?? 0;
+  }
+
+  get pixelRatio(): number {
+    return this.gl.getPixelRatio();
   }
 
   dispose(): void {

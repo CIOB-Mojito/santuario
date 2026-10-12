@@ -1,16 +1,14 @@
 export type TickHandler = (dt: number, elapsed: number) => void;
 
 /**
- * Bucle de animacion. Clampea dt para evitar saltos cuando la pestana vuelve
- * o el dispositivo se traba, y expone metricas de frame para el panel de debug.
+ * Bucle de animacion. Clampea dt para que un freeze no dispare saltos fisicos
+ * y expone metricas de frame estables para el panel de debug.
  */
 export class Ticker {
   private readonly handlers: TickHandler[] = [];
   private rafId = 0;
   private last = 0;
   private running = false;
-
-  /** Tope de dt: 50ms (equivale a 20 fps). Evita saltos fisicos tras un freeze. */
   private readonly maxDt = 0.05;
 
   elapsed = 0;
@@ -55,6 +53,7 @@ export class Ticker {
       this.last = now;
       return;
     }
+
     let dt = (now - this.last) / 1000;
     this.last = now;
     if (dt > this.maxDt) dt = this.maxDt;

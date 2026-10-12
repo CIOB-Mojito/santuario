@@ -1,64 +1,66 @@
-export type QualityLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'ULTRA';
+export type QualityLevel = 'QUALITY_LOW' | 'QUALITY_MEDIUM' | 'QUALITY_HIGH';
 
 export interface QualityProfile {
   readonly level: QualityLevel;
+  readonly label: string;
   readonly pixelRatioCap: number;
   readonly antialias: boolean;
   readonly shadows: boolean;
   readonly shadowMapSize: number;
-  readonly fogNear: number;
-  readonly fogFar: number;
-  readonly maxLights: number;
+  readonly drawDistance: number;
+  readonly maxPixelRatioToShadows: number;
+  readonly textureResSecondary: number;
+  readonly particleCount: number;
+  readonly lodBias: number;
 }
 
 /**
- * Perfiles de calidad. Mobile-first: LOW y MEDIUM son los destinatarios reales,
- * HIGH/ULTRA existen pero no se eligen automaticamente.
+ * Perfiles de la seccion 30 de la especificacion. LOW y MEDIUM son los reales
+ * para movil; HIGH existe para equipos con margen.
  */
 export const QUALITY_PROFILES: Record<QualityLevel, QualityProfile> = {
-  LOW: {
-    level: 'LOW',
+  QUALITY_LOW: {
+    level: 'QUALITY_LOW',
+    label: 'Baja',
     pixelRatioCap: 1,
     antialias: false,
     shadows: false,
     shadowMapSize: 512,
-    fogNear: 12,
-    fogFar: 65,
-    maxLights: 3
+    drawDistance: 70,
+    maxPixelRatioToShadows: 0,
+    textureResSecondary: 512,
+    particleCount: 120,
+    lodBias: 1.4
   },
-  MEDIUM: {
-    level: 'MEDIUM',
+  QUALITY_MEDIUM: {
+    level: 'QUALITY_MEDIUM',
+    label: 'Media',
     pixelRatioCap: 1.5,
     antialias: false,
     shadows: true,
     shadowMapSize: 1024,
-    fogNear: 16,
-    fogFar: 90,
-    maxLights: 5
+    drawDistance: 110,
+    maxPixelRatioToShadows: 1.5,
+    textureResSecondary: 1024,
+    particleCount: 260,
+    lodBias: 1
   },
-  HIGH: {
-    level: 'HIGH',
+  QUALITY_HIGH: {
+    level: 'QUALITY_HIGH',
+    label: 'Alta',
     pixelRatioCap: 2,
     antialias: true,
     shadows: true,
     shadowMapSize: 2048,
-    fogNear: 20,
-    fogFar: 125,
-    maxLights: 8
-  },
-  ULTRA: {
-    level: 'ULTRA',
-    pixelRatioCap: 2.5,
-    antialias: true,
-    shadows: true,
-    shadowMapSize: 4096,
-    fogNear: 24,
-    fogFar: 160,
-    maxLights: 12
+    drawDistance: 160,
+    maxPixelRatioToShadows: 2,
+    textureResSecondary: 2048,
+    particleCount: 420,
+    lodBias: 0.8
   }
 };
 
-const ORDER: QualityLevel[] = ['LOW', 'MEDIUM', 'HIGH', 'ULTRA'];
+const ORDER: QualityLevel[] = ['QUALITY_LOW', 'QUALITY_MEDIUM', 'QUALITY_HIGH'];
 
 export function nextQuality(level: QualityLevel): QualityLevel {
   const i = ORDER.indexOf(level);
@@ -66,8 +68,8 @@ export function nextQuality(level: QualityLevel): QualityLevel {
 }
 
 /**
- * Sondeo conservador del dispositivo. No busca adivinar de mas: ante la duda,
- * elige un perfil bajo y deja que el sistema adaptativo suba o baje despues.
+ * Sondeo conservador (seccion 30). Ante la duda elige bajo y deja que el
+ * usuario o el sistema adaptativo suban despues.
  */
 export function detectDeviceProfile(): QualityLevel {
   const nav = navigator as Navigator & { deviceMemory?: number };
@@ -80,7 +82,7 @@ export function detectDeviceProfile(): QualityLevel {
   score += dpr >= 3 ? 2 : dpr >= 2 ? 1 : 0;
   if (mem !== undefined) score += mem >= 8 ? 2 : mem >= 4 ? 1 : 0;
 
-  if (score <= 1) return 'LOW';
-  if (score <= 3) return 'MEDIUM';
-  return 'HIGH';
+  if (score <= 1) return 'QUALITY_LOW';
+  if (score <= 3) return 'QUALITY_MEDIUM';
+  return 'QUALITY_HIGH';
 }

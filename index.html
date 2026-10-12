@@ -5,19 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="color-scheme" content="dark">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Santuario</title>
+<title>Santuario Primordio</title>
 <style>
   html,body{margin:0;height:100%;overflow:hidden;background:#05070a;color:#e8e2d4;
-    font-family:system-ui,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent}
+    font-family:system-ui,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent;
+    overscroll-behavior:none}
   #app{position:fixed;inset:0}
   canvas{display:block;width:100%;height:100%;touch-action:none}
   #boot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
-    text-align:center;padding:32px;font-size:15px;line-height:1.5;background:#05070a}
+    text-align:center;padding:32px;font-size:15px;line-height:1.5;background:#05070a;z-index:50}
 </style>
 </head>
 <body>
 <div id="app"></div>
-<div id="boot">Cargando santuario…</div>
-<script type="module" src="/dist/main.js"></script>
+<div id="boot">Entrando al santuario…</div>
+<script type="module" src="/src/main.ts"></script>
 </body>
 </html>
