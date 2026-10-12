@@ -64,8 +64,9 @@ iluminación ambiental (`scene.environment`). Verificación: `npm run check` ok
 ### PLACEHOLDER
 
 - Geometría de la nave (muros, columnas, altar, techo): volumetría modular
-  provisional, **con** materiales PBR reales ya asignados. Las esculturas y
-  velas provisionales ya fueron sustituidas por modelos reales CC0.
+  provisional, **con** materiales PBR reales ya asignados, rosetón, armazón de
+  cubierta y contrafuertes escalonados. Las esculturas y velas provisionales ya
+  fueron sustituidas por modelos reales.
 - Cielo procedural (gradiente + sol): intencional y adaptado (no skybox bruto).
 - Partículas de polvo: efecto autoral, no relleno.
 

@@ -49,7 +49,7 @@ En el telefono, abre la URL de red que imprime Vite en Chrome.
 - **Fase 4 — Descargar primer conjunto:** hecho, 7 texturas/HDRI CC0 (md5 verificado) + 10 modelos CC0 de OpenGameArt.
 - **Fase 5 — Optimizar modelos:** hecho. `assimp`→GLB (`tools/convert-model.py`) y `gltf-transform` (estatua 66 MB → 0.58 MB).
 - **Fase 6 — Integrar texturas PBR y modelos:** hecho. Materiales PBR en la nave + HDRI; estatuas (marmol, caballero yacente), mausoleo, sepulcro, candelabro y 6 lapidas colocados desde `src/world/placements.ts`, sustituyendo los placeholders.
-- **Fases 7-14:** pendientes (arquitectura definitiva, angel funerario de calidad, exterior/cielo final, streaming/LOD fino, prueba en navegador, correcciones, nuevas zonas).
+- **Fases 7-14:** en curso. Añadidos rosetón, armazón de cubierta (vigas/correas) y contrafuertes escalonados; LOD por distancia (sombra/visibilidad) para los modelos. Pendientes: arquitectura definitiva, más props, y prueba visual en navegador.
 
 ## Assets reales (CC0, `public/assets/`)
 

@@ -63,11 +63,13 @@ export class World {
     // Suelo interior, ligeramente elevado.
     this.addBox(halfWidth * 2, 0.4, length, 0, 0.2, 0, this.mat.floor, false);
 
-    // Muros laterales con contrafuertes.
+    // Muros laterales con contrafuertes (escalonados hacia el exterior).
     for (const side of [-1, 1]) {
       this.addBox(0.9, wallHeight, length, side * (halfWidth + 0.45), wallHeight / 2, 0, this.mat.stoneWall, true);
       for (let z = -halfLength + 4; z <= halfLength - 4; z += 8) {
         this.addBox(1.4, wallHeight * 0.8, 1.4, side * (halfWidth + 1.1), wallHeight * 0.4, z, this.mat.stoneCool, true);
+        this.addBox(1.7, wallHeight * 0.55, 1.7, side * (halfWidth + 1.35), wallHeight * 0.275, z, this.mat.stoneCool, false);
+        this.addBox(1.0, 1.2, 1.6, side * (halfWidth + 1.55), 0.8, z, this.mat.stoneCool, false);
       }
     }
 
@@ -97,6 +99,9 @@ export class World {
       }
     }
 
+    this.buildVault(halfWidth, wallHeight, halfLength);
+    this.addRoseWindow(halfLength, wallHeight);
+
     // Altar al fondo, sobre plataforma.
     this.addBox(7, 0.5, 4, 0, 0.65, -halfLength + 5, this.mat.stoneCool, true);
     const altar = this.addBox(3.2, 1.4, 1.6, 0, 1.6, -halfLength + 5, this.mat.gold, true);
@@ -114,6 +119,45 @@ export class World {
     }
   }
 
+
+  /** Armazon de madera bajo la cubierta: vigas transversales y correas. */
+  private buildVault(halfWidth: number, wallHeight: number, halfLength: number): void {
+    const beamY = wallHeight - 2.4;
+    for (let z = -halfLength + 8; z <= halfLength - 8; z += 8) {
+      const tie = new THREE.Mesh(new THREE.BoxGeometry(halfWidth * 2 + 1, 0.35, 0.45), this.mat.wood);
+      tie.position.set(0, beamY, z);
+      tie.castShadow = true;
+      this.root.add(tie);
+    }
+    for (const side of [-1, 1]) {
+      const purlin = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, halfLength * 2 - 4), this.mat.wood);
+      purlin.position.set(side * 4.6, beamY + 0.6, 0);
+      purlin.castShadow = true;
+      this.root.add(purlin);
+    }
+  }
+
+  /** Roseton en la fachada frontal, sobre la puerta. */
+  private addRoseWindow(halfLength: number, wallHeight: number): void {
+    const z = halfLength + 0.7;
+    const y = wallHeight - 3.4;
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(2.5, 0.35, 10, 32), this.mat.stoneCool);
+    ring.position.set(0, y, z);
+    ring.castShadow = true;
+    this.root.add(ring);
+
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.5, 16), this.mat.stoneCool);
+    hub.rotation.x = Math.PI / 2;
+    hub.position.set(0, y, z);
+    this.root.add(hub);
+
+    for (let i = 0; i < 6; i++) {
+      const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.22, 5, 0.3), this.mat.stoneCool);
+      spoke.position.set(0, y, z - 0.05);
+      spoke.rotation.z = (i * Math.PI) / 6;
+      this.root.add(spoke);
+    }
+  }
 
   private addColumn(x: number, y: number, z: number, height: number, collide: boolean): void {
     const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.8, height, 16), this.mat.stoneWall);

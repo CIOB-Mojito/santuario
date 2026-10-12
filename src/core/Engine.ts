@@ -60,6 +60,8 @@ export class Engine {
   private fogTarget = 0.0016;
   private currentZone: ZoneDef;
   private streamAccumulator = 0;
+  private lodAccumulator = 0;
+  private readonly placedModels: THREE.Object3D[] = [];
   private textureStatus = 'pendiente';
   private envStatus = 'pendiente';
 
@@ -215,9 +217,33 @@ export class Engine {
       this.streaming.update(this.player.position);
     }
 
+    this.lodAccumulator += dt;
+    if (this.lodAccumulator > 0.25) {
+      this.lodAccumulator = 0;
+      this.updateLod();
+    }
+
     this.renderer.render(this.scene, this.camera.camera);
     this.updateDebug();
   };
+
+  /**
+   * LOD por distancia (seccion 8): las piezas lejanas dejan de proyectar sombra
+   * (caro) y se ocultan cuando superan su alcance, aunque sigan en memoria. El
+   * streaming ya se encarga de la carga/descarga; esto reduce draw calls.
+   */
+  private updateLod(): void {
+    const cam = this.camera.camera.position;
+    for (const object of this.placedModels) {
+      const dist = cam.distanceTo(object.position);
+      const near = dist < 45;
+      const visible = dist < 220;
+      if (object.visible !== visible) object.visible = visible;
+      object.traverse((node) => {
+        if (node instanceof THREE.Mesh && node.castShadow !== near) node.castShadow = near;
+      });
+    }
+  }
 
   private enterZone(zone: ZoneDef): void {
     this.currentZone = zone;
@@ -259,6 +285,7 @@ export class Engine {
 
     object.name = id;
     this.scene.add(object);
+    this.placedModels.push(object);
 
     if (placement?.label) {
       this.interaction.add({
