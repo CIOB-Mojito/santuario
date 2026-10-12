@@ -15,6 +15,7 @@ export class InputState {
   touchActive = false;
   private keyboardRunning = false;
   private touchRunning = false;
+  private jumpPressed = false;
 
   get running(): boolean {
     if (this.touchActive) return this.touchRunning;
@@ -29,11 +30,20 @@ export class InputState {
     this.touchRunning = value;
   }
 
+  /** Encola un salto (tecla o boton) para el proximo update del jugador. */
+  requestJump(): void {
+    this.jumpPressed = true;
+  }
+
   /** Aplica la fuente activa al jugador (el tactil manda si esta en uso). */
   applyTo(player: Player): void {
     if (this.touchActive) player.moveInput.copy(this.touch);
     else if (this.keyboardActive) player.moveInput.copy(this.keyboard);
     else player.moveInput.set(0, 0);
     player.running = this.running;
+    if (this.jumpPressed) {
+      player.requestJump();
+      this.jumpPressed = false;
+    }
   }
 }

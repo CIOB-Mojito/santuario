@@ -16,6 +16,7 @@ export class TouchControls {
   private readonly base = document.createElement('div');
   private readonly knob = document.createElement('div');
   private readonly hint = document.createElement('div');
+  private readonly jump = document.createElement('button');
 
   private moveId: number | null = null;
   private lookId: number | null = null;
@@ -38,7 +39,9 @@ export class TouchControls {
 
   mount(parent: HTMLElement): void {
     if (!this.active) return;
-    parent.append(this.base, this.knob, this.hint);
+    this.jump.textContent = 'SALTAR';
+    this.jump.addEventListener('pointerdown', this.onJump);
+    parent.append(this.base, this.knob, this.hint, this.jump);
     parent.addEventListener('pointerdown', this.onDown);
     parent.addEventListener('pointermove', this.onMove);
     parent.addEventListener('pointerup', this.onUp);
@@ -78,7 +81,28 @@ export class TouchControls {
     hint.pointerEvents = 'none';
     hint.zIndex = '20';
     this.hint.textContent = 'izquierda: mover · derecha: mirar · toque: interactuar';
+
+    const jump = this.jump.style;
+    jump.position = 'fixed';
+    jump.right = '20px';
+    jump.bottom = '26px';
+    jump.width = '78px';
+    jump.height = '78px';
+    jump.borderRadius = '50%';
+    jump.border = '1.5px solid rgba(255,240,214,0.5)';
+    jump.background = 'rgba(20,26,34,0.34)';
+    jump.color = 'rgba(255,226,184,0.9)';
+    jump.font = '12px system-ui, sans-serif';
+    jump.fontWeight = '600';
+    jump.zIndex = '22';
+    jump.touchAction = 'none';
+    jump.userSelect = 'none';
   }
+
+  private readonly onJump = (e: PointerEvent): void => {
+    e.preventDefault();
+    this.input.requestJump();
+  };
 
   private readonly onDown = (e: PointerEvent): void => {
     if (e.pointerType !== 'touch') return;
@@ -154,5 +178,6 @@ export class TouchControls {
     this.base.remove();
     this.knob.remove();
     this.hint.remove();
+    this.jump.remove();
   }
 }

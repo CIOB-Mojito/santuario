@@ -11,6 +11,7 @@ export const SETTINGS = {
   player: {
     eyeHeight: 1.65,
     radius: 0.35,
+    bodyHeight: 1.85,
     walkSpeed: 3.1,
     runSpeed: 5.2,
     smoothing: 12,
@@ -18,7 +19,10 @@ export const SETTINGS = {
     headBobAmplitude: 0.035,
     headBobFrequency: 9.5,
     minPitch: -1.2,
-    maxPitch: 1.2
+    maxPitch: 1.2,
+    stepHeight: 0.6,
+    gravity: 18,
+    jumpSpeed: 7.2
   },
   world: {
     groundSize: 600,

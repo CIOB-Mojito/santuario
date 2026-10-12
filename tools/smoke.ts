@@ -7,6 +7,7 @@ import { InputState } from '../src/player/InputState';
 import { NarrativeSystem } from '../src/narrative/NarrativeSystem';
 import { FRAGMENTS } from '../src/narrative/fragments';
 import { nextQuality, QUALITY_PROFILES } from '../src/config/quality';
+import { SETTINGS } from '../src/config/settings';
 
 let failures = 0;
 function check(name: string, condition: boolean, detail = ''): void {
@@ -77,6 +78,33 @@ async function main(): Promise<void> {
   const startZ = walker.position.z;
   for (let i = 0; i < 120; i++) walker.update(1 / 60, []);
   check('el jugador camina hacia delante', walker.position.z < startZ - 3, `dz=${(startZ - walker.position.z).toFixed(2)}`);
+
+  // 5c. Superar obstaculos: escalon bajo y salto
+  const climber = new Player();
+  climber.setWorldBounds(300);
+  climber.position.set(0, SETTINGS.player.eyeHeight, 10);
+  climber.yaw = 0;
+  climber.moveInput.set(0, 1);
+  const step = new THREE.Box3(new THREE.Vector3(-4, 0, 4), new THREE.Vector3(4, SETTINGS.player.stepHeight - 0.1, 5));
+  let maxFeet = 0;
+  for (let i = 0; i < 240; i++) {
+    climber.update(dt, [step]);
+    maxFeet = Math.max(maxFeet, climber.position.y - SETTINGS.player.eyeHeight);
+  }
+  check('el jugador supera un escalon bajo', climber.position.z < 4, `z=${climber.position.z.toFixed(2)}`);
+  check('el jugador se sube al escalon', maxFeet > 0.3, `feet=${maxFeet.toFixed(2)}`);
+
+  const jumper = new Player();
+  jumper.setWorldBounds(300);
+  jumper.position.set(0, SETTINGS.player.eyeHeight, 0);
+  jumper.requestJump();
+  let peak = 0;
+  for (let i = 0; i < 120; i++) {
+    jumper.update(dt, []);
+    peak = Math.max(peak, jumper.position.y);
+  }
+  check('el salto eleva al jugador', peak > SETTINGS.player.eyeHeight + 0.6, `peak=${peak.toFixed(2)}`);
+  check('el jugador vuelve al suelo tras el salto', jumper.grounded && Math.abs(jumper.position.y - SETTINGS.player.eyeHeight) < 0.01);
 
   // 6. Narrativa sin repeticiones
   const narrative = new NarrativeSystem();

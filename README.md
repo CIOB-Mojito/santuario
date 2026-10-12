@@ -41,6 +41,12 @@ bash tools/fetch-models.sh             # descarga+convierte+optimiza modelos CC0
 
 En el telefono, abre la URL de red que imprime Vite en Chrome.
 
+Controles: en escritorio `WASD`/flechas para mover, `Shift` para correr,
+`Espacio` para saltar, arrastrar con el raton para mirar y `E` para interactuar.
+En tactil: joystick a la izquierda, arrastrar a la derecha para mirar, boton
+`SALTAR`, y un toque sin desplazamiento interactua. El jugador sube escalones
+bajos automaticamente y puede saltar obstaculos mas altos.
+
 ## Estado segun las fases de `o.txt`
 
 - **Fase 1 — Auditar el proyecto:** hecho → `docs/asset-audit.md`.

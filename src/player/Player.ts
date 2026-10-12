@@ -3,7 +3,9 @@ import { SETTINGS } from '../config/settings';
 
 /**
  * Estado fisico del jugador (seccion 7): posicion, velocidad con inercia real
- * (aceleracion + amortiguacion), y resolucion de colision contra cajas AABB.
+ * (aceleracion + amortiguacion), gravedad/salto y resolucion de colision contra
+ * cajas AABB. La colision tiene en cuenta la altura: los obstaculos bajos
+ * (<= stepHeight) se superan automaticamente y los altos se bloquean o saltan.
  * No conoce la camara ni el DOM; recibe una direccion de movimiento y un yaw.
  */
 export class Player {
@@ -14,6 +16,10 @@ export class Player {
 
   running = false;
   yaw = 0;
+  grounded = true;
+
+  private verticalVelocity = 0;
+  private jumpRequested = false;
 
   private readonly forward = new THREE.Vector3();
   private readonly right = new THREE.Vector3();
@@ -29,10 +35,16 @@ export class Player {
     this.bounds = halfExtent;
   }
 
+  /** Encola un salto; se consume en el proximo update si esta en el suelo. */
+  requestJump(): void {
+    this.jumpRequested = true;
+  }
+
   update(dt: number, colliders: readonly THREE.Box3[]): boolean {
     const p = SETTINGS.player;
     const input = this.moveInput;
     const magnitude = input.length();
+    const feet = this.position.y - p.eyeHeight;
 
     this.forward.set(-Math.sin(this.yaw), 0, -Math.cos(this.yaw));
     this.right.set(Math.cos(this.yaw), 0, -Math.sin(this.yaw));
@@ -51,25 +63,36 @@ export class Player {
     const k = 1 - Math.exp(-p.smoothing * dt);
     this.velocity.x += (this.desired.x - this.velocity.x) * k;
     this.velocity.z += (this.desired.z - this.velocity.z) * k;
-    if (magnitude < 1e-4 && Math.hypot(this.velocity.x, this.velocity.z) < 0.02) {
-      this.velocity.set(0, 0, 0);
-      return false;
-    }
 
-    const speed = this.speed;
-    if (speed > 0.001) {
+    let speed = this.speed;
+    if (magnitude < 1e-4 && speed < 0.02 && this.grounded) {
+      this.velocity.set(0, 0, 0);
+      speed = 0;
+    } else if (speed > 0.001) {
       this.position.x += this.velocity.x * dt;
       this.position.z += this.velocity.z * dt;
-      this.resolveCollisions(colliders);
+      this.resolveCollisions(colliders, feet);
       this.clampToBounds();
+      speed = this.speed;
     }
-    return speed > 0.01;
+
+    this.updateVertical(dt, colliders, feet);
+    return speed > 0.01 || !this.grounded;
   }
 
-  private resolveCollisions(colliders: readonly THREE.Box3[]): void {
+  /**
+   * Colision horizontal consciente de la altura: una caja cuya parte superior
+   * queda al alcance de un escalon no bloquea (se sube al caminar por encima);
+   * las cajas por encima de la cabeza se ignoran; el resto empuja al jugador.
+   */
+  private resolveCollisions(colliders: readonly THREE.Box3[], feet: number): void {
     this.touched.clear();
-    const r = SETTINGS.player.radius;
+    const p = SETTINGS.player;
+    const r = p.radius;
+    const stepTop = feet + p.stepHeight;
+    const head = feet + p.bodyHeight;
     for (const box of colliders) {
+      if (box.max.y <= stepTop || box.min.y >= head) continue;
       if (this.position.x + r < box.min.x || this.position.x - r > box.max.x) continue;
       if (this.position.z + r < box.min.z || this.position.z - r > box.max.z) continue;
 
@@ -86,6 +109,39 @@ export class Player {
 
       this.velocity.set(0, 0, 0);
     }
+  }
+
+  /** Gravedad, salto y soporte: sube escalones bajos y cae hasta el suelo. */
+  private updateVertical(dt: number, colliders: readonly THREE.Box3[], feet: number): void {
+    const p = SETTINGS.player;
+    const r = p.radius * 0.5;
+    const stepTop = feet + p.stepHeight;
+
+    let groundY: number = SETTINGS.world.floorHeight;
+    for (const box of colliders) {
+      if (box.max.y > stepTop) continue;
+      if (this.position.x + r < box.min.x || this.position.x - r > box.max.x) continue;
+      if (this.position.z + r < box.min.z || this.position.z - r > box.max.z) continue;
+      if (box.max.y > groundY) groundY = box.max.y;
+    }
+
+    if (this.jumpRequested && this.grounded) {
+      this.verticalVelocity = p.jumpSpeed;
+      this.grounded = false;
+    }
+    this.jumpRequested = false;
+
+    let nextFeet = feet + this.verticalVelocity * dt - 0.5 * p.gravity * dt * dt;
+    this.verticalVelocity -= p.gravity * dt;
+
+    if (nextFeet <= groundY) {
+      nextFeet = groundY;
+      this.verticalVelocity = 0;
+      this.grounded = true;
+    } else {
+      this.grounded = false;
+    }
+    this.position.y = nextFeet + p.eyeHeight;
   }
 
   private clampToBounds(): void {

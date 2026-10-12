@@ -25,9 +25,14 @@ export class KeyboardControls {
     this.input = input;
 
     this.onKeyDown = (e) => {
+      const repeat = this.pressed.has(e.code);
       this.pressed.add(e.code);
       if (e.code === 'KeyE') interaction.trigger();
-      if (e.code === 'Space' || e.code.startsWith('Arrow')) e.preventDefault();
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (!repeat) input.requestJump();
+      }
+      if (e.code.startsWith('Arrow')) e.preventDefault();
     };
     this.onKeyUp = (e) => this.pressed.delete(e.code);
 
