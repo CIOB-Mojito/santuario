@@ -96,6 +96,19 @@ alguno de colecciones abiertas tipo VCU 3D), pero no se ha registrado aún la
 página y licencia de origen de cada uno. Queda pendiente confirmarlo antes de
 publicar. Se documenta en `docs/asset-license-report.md`.
 
+## Audio — OpenGameArt (CC0)
+
+| id | página | autor | archivo origen | formato |
+|---|---|---|---|---|
+| audio.wind_exterior | /content/wind-whoosh-loop | SketchMan3 | wind woosh loop.ogg | ogg |
+| audio.interior | /content/loopable-dungeon-ambience | JaggedStone | dungeon_ambient_1_0.ogg | ogg |
+| audio.candles | /content/fire-crackling | AntumDeluge | fire-1_0.ogg | ogg |
+
+Se reproducen en bucle por capas en `AudioSystem` (viento exterior, drone de
+interior y crepitar de velas), con ganancia interpolada segun la zona. Se
+descartaron `wind-loop` y `background-rumble-noise` por ser CC-BY 3.0
+(atribucion obligatoria) prefiriendo alternativas CC0.
+
 ## Criterio de selección (sec. 4 de o.txt)
 
 Combinación de calidad visual, polígonos, texturas PBR, escala, licencia,

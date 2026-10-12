@@ -69,6 +69,10 @@ Modelos aportados por el usuario (escaneos; licencia por verificar):
 Modelos del colaborador (licencia por verificar): `characters/Huesped.glb` y
 `Huesped-v2.glb`.
 
+Audio (OpenGameArt, CC0; bucles por capa): `audio/wind_exterior.ogg`
+(SketchMan3), `audio/interior_drone.ogg` (JaggedStone) y
+`audio/candles_fire.ogg` (AntumDeluge).
+
 Manifiestos: `docs/asset-manifest.json`, `docs/asset-sources.md`,
 `docs/asset-license-report.md`, `docs/asset-audit.md`.
 
@@ -76,15 +80,14 @@ Manifiestos: `docs/asset-manifest.json`, `docs/asset-sources.md`,
 
 Real: bucle de render, gestion de calidad, zona, colision, streaming con
 presupuesto de memoria y carga GLTF real, narrativa sin repeticion, controles
-tactiles, cielo procedural, sombras, audio por capas, **materiales PBR
-reales** con **HDRI de iluminacion ambiental**, y **modelos reales** (estatuas,
-mausoleo, sepulcro, candelabro, lapidas) colocados en el mundo.
+tactiles, cielo procedural, sombras, **audio real por capas** (muestras CC0),
+**materiales PBR reales** con **HDRI de iluminacion ambiental**, y **modelos
+reales** (estatuas, angeles, mausoleo, sepulcro, candelabro, fuente, lapidas)
+colocados en el mundo.
 
 Provisional: la geometria de la nave (muros, columnas, altar) sigue siendo
-volumetria modular intermedia con los materiales PBR ya asignados; las
-esculturas siguen siendo figuras de cilindro. Pendientes: escultura/ángel CC0,
-props ornamentales, audio, arquitectura definitiva, prueba visual en el
-dispositivo.
+volumetria modular intermedia con los materiales PBR ya asignados. Pendientes:
+arquitectura definitiva, mas props y verificacion visual en el dispositivo.
 
 ## Bloqueos conocidos
 

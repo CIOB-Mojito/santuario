@@ -38,6 +38,9 @@ Fecha: 2026-10-12. Generada a partir del estado real del repositorio
 | statue.wooden_angel | GLB | public/assets/statues/wooden_angel.glb | 1.76 MB (27.761 tris) | por verificar |
 | statue.monument_angel | GLB | public/assets/statues/monument_angel.glb | 3.97 MB (66.066 tris) | por verificar |
 | props.fountain_putti | GLB | public/assets/props/fountain_putti.glb | 3.13 MB (31.176 tris) | por verificar |
+| audio.wind_exterior | OGG | public/assets/audio/wind_exterior.ogg | 0.25 MB | CC0 |
+| audio.interior | OGG | public/assets/audio/interior_drone.ogg | 1.63 MB | CC0 |
+| audio.candles | OGG | public/assets/audio/candles_fire.ogg | 0.02 MB | CC0 |
 
 Los modelos se descargan de OpenGameArt (CC0), se convierten a GLB con
 `libassimp.so` vía `tools/convert-model.py` y se optimizan con
@@ -69,7 +72,6 @@ iluminación ambiental (`scene.environment`). Verificación: `npm run check` ok
 ### DESCARGA PENDIENTE
 
 - Props ornamentales adicionales (relicarios, incensarios).
-- Audio ambiental con licencia verificada.
 - Modelos de arquitectura complementaria (arcos, nervaduras, frisos).
 
 ### LICENCIA PENDIENTE DE VERIFICACIÓN

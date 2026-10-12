@@ -35,6 +35,14 @@ confirmado figura como «pendiente de verificar».
 OpenGameArt muestra el campo «License(s): CC0» en cada página; CC0 no exige
 atribución, pero se registra el autor por trazabilidad.
 
+## Audio descargado de OpenGameArt
+
+| asset | autor | página | licencia | atribución | verificado |
+|---|---|---|---|---|---|
+| audio.wind_exterior | SketchMan3 | /content/wind-whoosh-loop | CC0-1.0 | no | sí (página) |
+| audio.interior | JaggedStone | /content/loopable-dungeon-ambience | CC0-1.0 | no | sí (página) |
+| audio.candles | AntumDeluge | /content/fire-crackling | CC0-1.0 | no | sí (página) |
+
 ## Aportados por el usuario (home) — LICENCIA POR VERIFICAR
 
 | asset | archivo origen | autor | licencia | uso comercial | verificado |

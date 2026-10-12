@@ -276,7 +276,7 @@ export class Engine {
 
   private debugStats() {
     const p = this.player.position;
-    const audio = `int ${this.audio.level('interior').toFixed(2)} ext ${this.audio.level('windExterior').toFixed(2)}`;
+    const audio = `int ${this.audio.level('interior').toFixed(2)} ext ${this.audio.level('windExterior').toFixed(2)} · ${this.audio.sampleCount} mues`;
     return {
       fps: this.ticker.fps,
       frameMs: this.ticker.frameMs,
