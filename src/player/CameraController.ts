@@ -10,7 +10,7 @@ import type { Player } from './Player';
 export class CameraController {
   readonly camera: THREE.PerspectiveCamera;
 
-  yaw = Math.PI;
+  yaw = 0;
   pitch = 0;
   private bobPhase = 0;
 

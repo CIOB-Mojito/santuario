@@ -3,6 +3,7 @@ import { AssetRegistry } from '../src/assets/AssetRegistry';
 import { StreamingManager } from '../src/streaming/StreamingManager';
 import { zoneAt } from '../src/world/zones';
 import { Player } from '../src/player/Player';
+import { InputState } from '../src/player/InputState';
 import { NarrativeSystem } from '../src/narrative/NarrativeSystem';
 import { FRAGMENTS } from '../src/narrative/fragments';
 import { nextQuality, QUALITY_PROFILES } from '../src/config/quality';
@@ -50,7 +51,34 @@ async function main(): Promise<void> {
   check('el jugador avanza hacia el muro', player.position.z < 44, `z=${player.position.z.toFixed(2)}`);
   check('el jugador no atraviesa el muro', player.position.z > 42, `z=${player.position.z.toFixed(2)}`);
 
-  // 5. Narrativa sin repeticiones
+  // 5. Entrada combinada: el teclado no debe pisar el joystick
+  const input = new InputState();
+  const mover = new Player();
+  input.keyboardActive = false; // sin teclas
+  input.keyboard.set(0, 0);
+  input.touchActive = true;
+  input.touch.set(0.8, 0.6);
+  input.applyTo(mover);
+  check('el joystick mueve aunque el teclado no tenga teclas', mover.moveInput.x === 0.8 && mover.moveInput.y === 0.6, `move=${mover.moveInput.x},${mover.moveInput.y}`);
+  input.touchActive = false;
+  input.applyTo(mover);
+  check('sin fuentes activas el jugador se detiene', mover.moveInput.length() === 0);
+  input.keyboardActive = true;
+  input.keyboard.set(-1, 0);
+  input.applyTo(mover);
+  check('el teclado mueve cuando el tactil esta inactivo', mover.moveInput.x === -1);
+
+  // 5b. Movimiento real: avanzar mirando a la nave reduce z
+  const walker = new Player();
+  walker.setWorldBounds(300);
+  walker.position.set(0, 1.65, 46);
+  walker.yaw = 0;
+  walker.moveInput.set(0, 1);
+  const startZ = walker.position.z;
+  for (let i = 0; i < 120; i++) walker.update(1 / 60, []);
+  check('el jugador camina hacia delante', walker.position.z < startZ - 3, `dz=${(startZ - walker.position.z).toFixed(2)}`);
+
+  // 6. Narrativa sin repeticiones
   const narrative = new NarrativeSystem();
   narrative.load(FRAGMENTS);
   const zone = zoneAt(new THREE.Vector3(0, 0, 0));

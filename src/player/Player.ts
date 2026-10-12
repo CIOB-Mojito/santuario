@@ -37,34 +37,33 @@ export class Player {
     this.forward.set(-Math.sin(this.yaw), 0, -Math.cos(this.yaw));
     this.right.set(Math.cos(this.yaw), 0, -Math.sin(this.yaw));
 
+    this.desired.set(0, 0, 0);
     if (magnitude > 1e-4) {
       const scale = Math.min(magnitude, 1) / magnitude;
       this.desired
         .copy(this.forward).multiplyScalar(input.y * scale)
         .addScaledVector(this.right, input.x * scale);
-      this.velocity.addScaledVector(this.desired, p.acceleration * dt);
+      this.desired.normalize().multiplyScalar(this.running ? p.runSpeed : p.walkSpeed);
     }
 
-    // Amortiguacion (siempre, para que el jugador frene con inercia).
-    const damp = Math.max(0, 1 - p.damping * dt);
-    this.velocity.multiplyScalar(damp);
-    this.velocity.y = 0;
-
-    const maxSpeed = this.running ? p.runSpeed : p.walkSpeed;
-    if (this.speed > maxSpeed) {
-      const k = maxSpeed / this.speed;
-      this.velocity.x *= k;
-      this.velocity.z *= k;
+    // Velocidad objetivo suavizada: alcanza la velocidad pedida sin pasarse y
+    // frena con inercia al soltar. Estable a cualquier framerate.
+    const k = 1 - Math.exp(-p.smoothing * dt);
+    this.velocity.x += (this.desired.x - this.velocity.x) * k;
+    this.velocity.z += (this.desired.z - this.velocity.z) * k;
+    if (magnitude < 1e-4 && Math.hypot(this.velocity.x, this.velocity.z) < 0.02) {
+      this.velocity.set(0, 0, 0);
+      return false;
     }
 
-    const moved = this.speed > 0.01;
-    if (moved) {
+    const speed = this.speed;
+    if (speed > 0.001) {
       this.position.x += this.velocity.x * dt;
       this.position.z += this.velocity.z * dt;
       this.resolveCollisions(colliders);
       this.clampToBounds();
     }
-    return moved;
+    return speed > 0.01;
   }
 
   private resolveCollisions(colliders: readonly THREE.Box3[]): void {

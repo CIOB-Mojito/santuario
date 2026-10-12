@@ -17,6 +17,7 @@ import { FRAGMENTS } from '../narrative/fragments';
 import { Particles } from '../effects/Particles';
 import { Player } from '../player/Player';
 import { CameraController } from '../player/CameraController';
+import { InputState } from '../player/InputState';
 import { KeyboardControls } from '../player/KeyboardControls';
 import { TouchControls } from '../ui/TouchControls';
 import { Hud } from '../ui/Hud';
@@ -40,6 +41,7 @@ export class Engine {
   private readonly narrative = new NarrativeSystem();
   private readonly camera: CameraController;
   private readonly player = new Player();
+  private readonly inputState = new InputState();
   private readonly world: World;
   private readonly lighting: LightingSystem;
   private readonly sky = new Sky();
@@ -102,8 +104,8 @@ export class Engine {
 
     this.hud = new Hud(() => this.cycleQuality());
     this.debug = new DebugPanel();
-    this.keyboard = new KeyboardControls(this.renderer.canvas, this.player, this.camera, this.interaction, () => void this.audio.unlock());
-    this.touch = new TouchControls(this.player, this.camera, this.interaction);
+    this.keyboard = new KeyboardControls(this.renderer.canvas, this.camera, this.inputState, this.interaction, () => void this.audio.unlock());
+    this.touch = new TouchControls(this.inputState, this.camera, this.interaction);
 
     window.addEventListener('resize', this.onResize);
     document.addEventListener('visibilitychange', this.onVisibility);
@@ -166,6 +168,7 @@ export class Engine {
 
   private readonly update = (dt: number): void => {
     this.keyboard.update();
+    this.inputState.applyTo(this.player);
     this.player.yaw = this.camera.yaw;
     this.player.update(dt, this.world.colliders);
     this.camera.update(dt, this.player);

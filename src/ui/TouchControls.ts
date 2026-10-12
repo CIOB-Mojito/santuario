@@ -1,4 +1,4 @@
-import type { Player } from '../player/Player';
+import type { InputState } from '../player/InputState';
 import type { CameraController } from '../player/CameraController';
 import type { InteractionSystem } from '../interaction/InteractionSystem';
 
@@ -9,7 +9,7 @@ import type { InteractionSystem } from '../interaction/InteractionSystem';
  * tactil, para no tapar la vista en escritorio.
  */
 export class TouchControls {
-  private readonly player: Player;
+  private readonly input: InputState;
   private readonly camera: CameraController;
   private readonly interaction: InteractionSystem;
 
@@ -25,8 +25,8 @@ export class TouchControls {
   private moveMoved = false;
   private readonly maxRadius = 52;
 
-  constructor(player: Player, camera: CameraController, interaction: InteractionSystem) {
-    this.player = player;
+  constructor(input: InputState, camera: CameraController, interaction: InteractionSystem) {
+    this.input = input;
     this.camera = camera;
     this.interaction = interaction;
     this.style();
@@ -82,12 +82,15 @@ export class TouchControls {
 
   private readonly onDown = (e: PointerEvent): void => {
     if (e.pointerType !== 'touch') return;
+    const el = e.target as HTMLElement | null;
+    if (el && el.closest('button')) return; // no robar toques a la interfaz
     const w = window.innerWidth;
     if (e.clientX < w * 0.5 && this.moveId === null) {
       this.moveId = e.pointerId;
       this.moveMoved = false;
       this.origin.x = e.clientX;
       this.origin.y = e.clientY;
+      this.input.touchActive = true;
       const { style } = this.base;
       style.display = 'block';
       style.left = `${e.clientX - 58}px`;
@@ -112,8 +115,9 @@ export class TouchControls {
         dy = (dy / dist) * this.maxRadius;
       }
       this.placeKnob(dx, dy);
-      this.player.moveInput.set(dx / this.maxRadius, -dy / this.maxRadius);
-      this.player.running = dist > this.maxRadius * 0.92;
+      this.input.touch.set(dx / this.maxRadius, -dy / this.maxRadius);
+      this.input.touchActive = true;
+      this.input.setTouchRunning(dist > this.maxRadius * 0.92);
       if (dist > 8) this.moveMoved = true;
     } else if (e.pointerId === this.lookId) {
       const dx = e.clientX - this.lookLast.x;
@@ -130,8 +134,9 @@ export class TouchControls {
       this.moveId = null;
       this.base.style.display = 'none';
       this.knob.style.display = 'none';
-      this.player.moveInput.set(0, 0);
-      this.player.running = false;
+      this.input.touchActive = false;
+      this.input.touch.set(0, 0);
+      this.input.setTouchRunning(false);
       if (!this.moveMoved) this.interaction.trigger();
     } else if (e.pointerId === this.lookId) {
       this.lookId = null;

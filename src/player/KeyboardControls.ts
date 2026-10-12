@@ -1,15 +1,15 @@
-import type { Player } from './Player';
+import type { InputState } from './InputState';
 import type { CameraController } from './CameraController';
 import type { InteractionSystem } from '../interaction/InteractionSystem';
 
 /**
  * Entrada de escritorio: WASD/flechas para mover, Shift para correr, arrastre
- * del raton para mirar, E para interactuar. Sirve sobre todo para depurar en
- * un equipo con teclado; el objetivo real es el control tactil.
+ * del raton para mirar, E para interactuar. No escribe en el jugador: solo
+ * actualiza su vector dentro de InputState, para no pisar el control tactil.
  */
 export class KeyboardControls {
-  private readonly player: Player;
   private readonly camera: CameraController;
+  private readonly input: InputState;
   private readonly pressed = new Set<string>();
   private dragging = false;
   private lastX = 0;
@@ -20,14 +20,14 @@ export class KeyboardControls {
   private readonly onKeyDown: (e: KeyboardEvent) => void;
   private readonly onKeyUp: (e: KeyboardEvent) => void;
 
-  constructor(target: HTMLElement, player: Player, camera: CameraController, interaction: InteractionSystem, onGesture?: () => void) {
-    this.player = player;
+  constructor(target: HTMLElement, camera: CameraController, input: InputState, interaction: InteractionSystem, onGesture?: () => void) {
     this.camera = camera;
+    this.input = input;
 
     this.onKeyDown = (e) => {
       this.pressed.add(e.code);
       if (e.code === 'KeyE') interaction.trigger();
-      if (e.code === 'Space' || (e.code.startsWith('Arrow'))) e.preventDefault();
+      if (e.code === 'Space' || e.code.startsWith('Arrow')) e.preventDefault();
     };
     this.onKeyUp = (e) => this.pressed.delete(e.code);
 
@@ -64,8 +64,10 @@ export class KeyboardControls {
     if (this.pressed.has('KeyS') || this.pressed.has('ArrowDown')) y -= 1;
     if (this.pressed.has('KeyD') || this.pressed.has('ArrowRight')) x += 1;
     if (this.pressed.has('KeyA') || this.pressed.has('ArrowLeft')) x -= 1;
-    this.player.moveInput.set(x, y);
-    this.player.running = this.pressed.has('ShiftLeft') || this.pressed.has('ShiftRight');
+
+    this.input.keyboard.set(x, y);
+    this.input.keyboardActive = x !== 0 || y !== 0;
+    this.input.setKeyboardRunning(this.input.keyboardActive && (this.pressed.has('ShiftLeft') || this.pressed.has('ShiftRight')));
   }
 
   dispose(): void {
