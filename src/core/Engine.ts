@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { detectDeviceProfile, nextQuality, QUALITY_PROFILES, type QualityLevel } from '../config/quality';
 import { Ticker } from './Ticker';
 import { Renderer } from './Renderer';
@@ -7,6 +8,7 @@ import { LightingSystem } from '../lighting/LightingSystem';
 import { World } from '../world/World';
 import { zoneAt, type ZoneDef } from '../world/zones';
 import { AssetRegistry } from '../assets/AssetRegistry';
+import { ASSETS, MOBILE_BUDGET_BYTES } from '../assets/manifest';
 import { StreamingManager } from '../streaming/StreamingManager';
 import { InteractionSystem } from '../interaction/InteractionSystem';
 import { AudioSystem } from '../audio/AudioSystem';
@@ -32,6 +34,7 @@ export class Engine {
   private readonly renderer: Renderer;
   private readonly registry = new AssetRegistry();
   private readonly streaming: StreamingManager;
+  private readonly gltf = new GLTFLoader();
   private readonly interaction = new InteractionSystem(6);
   private readonly audio = new AudioSystem();
   private readonly narrative = new NarrativeSystem();
@@ -72,7 +75,21 @@ export class Engine {
     this.camera = new CameraController(this.aspect());
     this.currentZone = zoneAt(this.player.position);
 
-    this.streaming = new StreamingManager(this.registry, async () => null);
+    this.registry.registerMany(ASSETS);
+    this.streaming = new StreamingManager(
+      this.registry,
+      (entry) =>
+        new Promise((resolve, reject) => {
+          if (!entry.url) {
+            resolve(null);
+            return;
+          }
+          this.gltf.load(entry.url, (gltf) => resolve(gltf.scene), undefined, reject);
+        }),
+      MOBILE_BUDGET_BYTES,
+      140,
+      (entry, object) => this.placeLoadedAsset(entry.id, object)
+    );
     this.narrative.load(FRAGMENTS);
 
     for (const landmark of this.world.landmarks) {
@@ -181,6 +198,31 @@ export class Engine {
     this.fogTarget = zone.fogDensity;
     const fragment = this.narrative.next(zone);
     if (fragment) this.hud.showNarrative(fragment.text);
+  }
+
+  /** Coloca un recurso cargado en el mundo, normalizado a escala humana. */
+  private placeLoadedAsset(id: string, object: unknown): void {
+    if (!(object instanceof THREE.Object3D)) return;
+    object.traverse((node) => {
+      if (node instanceof THREE.Mesh) {
+        node.castShadow = true;
+        node.receiveShadow = true;
+      }
+    });
+
+    const size = new THREE.Vector3();
+    new THREE.Box3().setFromObject(object).getSize(size);
+    if (size.y > 0.0001) object.scale.multiplyScalar(1.85 / size.y);
+
+    const box = new THREE.Box3().setFromObject(object);
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+    object.position.x += 3 - center.x;
+    object.position.z += -6 - center.z;
+    object.position.y += -box.min.y;
+
+    object.name = id;
+    this.scene.add(object);
   }
 
   private updateDebug(): void {

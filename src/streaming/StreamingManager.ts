@@ -3,6 +3,7 @@ import type { AssetEntry } from '../assets/types';
 import type { AssetRegistry } from '../assets/AssetRegistry';
 
 export type AssetLoader = (entry: AssetEntry) => Promise<unknown>;
+export type AssetLoadedHandler = (entry: AssetEntry, object: unknown) => void;
 
 interface QueueItem {
   readonly entry: AssetEntry;
@@ -31,11 +32,14 @@ export class StreamingManager {
     return this.queue.length;
   }
 
-  constructor(registry: AssetRegistry, loader: AssetLoader, budgetBytes = 48 * 1024 * 1024, unloadDistance = 140) {
+  private readonly onLoaded?: AssetLoadedHandler;
+
+  constructor(registry: AssetRegistry, loader: AssetLoader, budgetBytes = 48 * 1024 * 1024, unloadDistance = 140, onLoaded?: AssetLoadedHandler) {
     this.registry = registry;
     this.loader = loader;
     this.budgetBytes = budgetBytes;
     this.unloadDistance = unloadDistance;
+    this.onLoaded = onLoaded;
   }
 
   /** Recalcula la cola segun la posicion del jugador. */
@@ -68,6 +72,7 @@ export class StreamingManager {
           const object = await this.loader(next.entry);
           this.registry.setStatus(next.entry.id, 'ready', object);
           this.loadedCount++;
+          this.onLoaded?.(next.entry, object);
         } catch {
           this.registry.setStatus(next.entry.id, 'missing');
         }

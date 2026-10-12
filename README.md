@@ -42,12 +42,22 @@ arrastrar para mirar, E para interactuar.
 
 ## Que es real y que es provisional
 
-Real: bucle de render, gestion de calidad, zona, colision, streaming (politica y
-presupuesto), narrativa sin repeticion, controles, cielo procedural, sombras y
-audio por capas (sin muestras todavia).
+Real: bucle de render, gestion de calidad, zona, colision, streaming con
+presupuesto de memoria y carga GLTF real, narrativa sin repeticion, controles,
+cielo procedural, sombras y audio por capas (sin muestras todavia).
+
+Integrado del colaborador: `public/assets/characters/Huesped.glb` (0.9 MB) y
+`Huesped-v2.glb` (5.5 MB). Se cargan con `GLTFLoader`, se normalizan a escala
+humana y se apoyan en el suelo de la nave. Con el presupuesto movil actual
+(3 MB), solo entra el modelo ligero; el pesado queda en cola a proposito.
 
 Provisional: la geometria de la nave son masas con materiales intencionados pero
-sin texturas ni modelos. Los assets del `AssetRegistry` apuntan a `null`: el
-streaming no carga nada hasta que existan recursos reales. La lista de assets
-gratuitos (Poly Haven, ambientCG, Sketchfab, etc.) se integrara en la fase de
-assets.
+sin texturas. La lista de assets gratuitos (Poly Haven, ambientCG, Sketchfab,
+etc.) se integrara en la fase de assets.
+
+## Integracion del commit del colaborador
+
+El remoto tenia `8f55b36 "feat: add free camera and GLB statues"` sobre la
+arquitectura anterior (Vite no, `src/scene/`). Se integro con un merge que
+**preserva ese commit en el historial** pero mantiene la arquitectura nueva de
+`o.txt`; solo se reincorporaron los modelos, movidos a `public/assets/`.
