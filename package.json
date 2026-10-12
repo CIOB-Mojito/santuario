@@ -1,0 +1,22 @@
+{
+  "name": "santuario",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Motor de santuario 3D cinematografico, mobile-first.",
+  "scripts": {
+    "dev": "node tools/dev.mjs",
+    "build": "node tools/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "smoke": "node tools/smoke.mjs",
+    "check": "npm run typecheck && npm run smoke && npm run build"
+  },
+  "dependencies": {
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@types/three": "^0.186.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.9.3"
+  }
+}
