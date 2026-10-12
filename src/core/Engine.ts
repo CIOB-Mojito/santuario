@@ -7,6 +7,7 @@ import { Sky } from '../lighting/Sky';
 import { LightingSystem } from '../lighting/LightingSystem';
 import { World } from '../world/World';
 import { zoneAt, type ZoneDef } from '../world/zones';
+import { PLACEMENTS } from '../world/placements';
 import { AssetRegistry } from '../assets/assetRegistry';
 import { ASSETS, MOBILE_BUDGET_BYTES } from '../assets/manifest';
 import { createMaterialSet, disposeMaterialSet, type MaterialSet } from '../assets/materials';
@@ -227,9 +228,14 @@ export class Engine {
     if (fragment) this.hud.showNarrative(fragment.text);
   }
 
-  /** Coloca un recurso cargado en el mundo, normalizado a escala humana. */
+  /** Coloca un recurso cargado en el mundo segun su tabla de colocacion. */
   private placeLoadedAsset(id: string, object: unknown): void {
     if (!(object instanceof THREE.Object3D)) return;
+
+    const placement = PLACEMENTS[id];
+    const [px, py, pz] = placement ? placement.position : [3, 0, -6];
+    const target = placement ? placement.targetHeight ?? null : 1.85;
+
     object.traverse((node) => {
       if (node instanceof THREE.Mesh) {
         node.castShadow = true;
@@ -237,19 +243,30 @@ export class Engine {
       }
     });
 
-    const size = new THREE.Vector3();
-    new THREE.Box3().setFromObject(object).getSize(size);
-    if (size.y > 0.0001) object.scale.multiplyScalar(1.85 / size.y);
+    if (target !== null) {
+      const size = new THREE.Vector3();
+      new THREE.Box3().setFromObject(object).getSize(size);
+      if (size.y > 0.0001) object.scale.multiplyScalar(target / size.y);
+    }
 
     const box = new THREE.Box3().setFromObject(object);
     const center = new THREE.Vector3();
     box.getCenter(center);
-    object.position.x += 3 - center.x;
-    object.position.z += -6 - center.z;
-    object.position.y += -box.min.y;
+    object.position.x += px - center.x;
+    object.position.z += pz - center.z;
+    object.position.y += py - box.min.y;
+    if (placement?.rotationY) object.rotation.y = placement.rotationY;
 
     object.name = id;
     this.scene.add(object);
+
+    if (placement?.label) {
+      this.interaction.add({
+        object,
+        label: placement.label,
+        onClick: () => this.hud.showNarrative(placement.label ?? id)
+      });
+    }
   }
 
   private updateDebug(): void {

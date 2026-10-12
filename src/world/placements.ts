@@ -1,0 +1,33 @@
+/**
+ * Colocacion de los modelos reales cargados por el streaming (secciones 15, 16
+ * y 21 de o.txt). Cada entrada define donde y como aparece el recurso en el
+ * mundo. Los modelos con `targetHeight` se normalizan a esa altura; si es null
+ * se respeta la escala de origen (personajes ya vienen a escala humana).
+ *
+ * Coordenadas del mundo: la nave discurre por z (-32..32), ancho +-9, el altar
+ * esta al fondo (z=-29). El exterior es el resto del terreno.
+ */
+export interface Placement {
+  readonly position: readonly [number, number, number];
+  readonly rotationY?: number;
+  readonly targetHeight?: number | null;
+  readonly label?: string;
+}
+
+export const PLACEMENTS: Readonly<Record<string, Placement>> = {
+  'character.huesped': { position: [3, 0, -6], targetHeight: 1.85 },
+  'character.huesped.v2': { position: [-3, 0, -6], targetHeight: 1.85 },
+
+  'statue.marble': { position: [-4.6, 0.4, -26], rotationY: 0.35, targetHeight: 3.2, label: 'Vigilante de marmol' },
+  'statue.effigy': { position: [0, 0.4, -21], rotationY: 0, targetHeight: 1.2, label: 'Caballero yacente' },
+
+  'props.candles': { position: [0, 0.9, -29.4], rotationY: 0, targetHeight: 1.5, label: 'Candelabro del altar' },
+  'props.mausoleum': { position: [-22, 0, -18], rotationY: 0.8, targetHeight: 6 },
+  'props.tomb': { position: [18, 0, -8], rotationY: -0.4, targetHeight: 1.6 },
+  'props.grave.1': { position: [12, 0, 8], rotationY: -0.3, targetHeight: 1.3 },
+  'props.grave.2': { position: [15, 0, 12], rotationY: 0.2, targetHeight: 1.1 },
+  'props.grave.3': { position: [-13, 0, 10], rotationY: 0.5, targetHeight: 1.2 },
+  'props.grave.4': { position: [-16, 0, 15], rotationY: -0.6, targetHeight: 1.4 },
+  'props.grave.5': { position: [11, 0, 20], rotationY: 0.1, targetHeight: 1.2 },
+  'props.grave.6': { position: [-12, 0, 22], rotationY: -0.2, targetHeight: 1.5 }
+};

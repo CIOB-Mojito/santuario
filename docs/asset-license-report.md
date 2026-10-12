@@ -21,6 +21,20 @@ confirmado figura como «pendiente de verificar».
   (8f55b36) sin licencia registrada → **por verificar** antes de cualquier
   publicación externa de esos modelos.
 
+## Descargados de OpenGameArt (modelos convertidos a GLB)
+
+| asset | autor | página | licencia | atribución | uso comercial | verificado |
+|---|---|---|---|---|---|---|
+| statue.effigy | yd | /content/knight-lying | CC0-1.0 | no | sí | sí (página) |
+| statue.marble | Daniel Andersson (hreikin) | /content/medieval-statue | CC0-1.0 | no | sí | sí (página) |
+| props.candles | AnyRPG | /content/medieval-candles | CC0-1.0 | no | sí | sí (página) |
+| props.tomb | zerberros | /content/tomb | CC0-1.0 | no | sí | sí (página) |
+| props.mausoleum | Paul Wortmann | /content/mausoleum1 | CC0-1.0 | no | sí | sí (página) |
+| props.grave.1..6 | Savino | /content/cemetery | CC0-1.0 | no | sí | sí (página) |
+
+OpenGameArt muestra el campo «License(s): CC0» en cada página; CC0 no exige
+atribución, pero se registra el autor por trazabilidad.
+
 ## Pendientes de verificación (no descargado)
 
 | candidato | fuente | motivo / bloqueo |

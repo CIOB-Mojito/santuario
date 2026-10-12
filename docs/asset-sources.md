@@ -49,8 +49,34 @@ Descarga por URL directa estable: `https://ambientcg.com/get?file=<Id>_1K-JPG.zi
 
 ## OpenGameArt — https://opengameart.org  (accesible, HTTP 200)
 
-- Pendiente de rastreo sistemático: medieval church, statue, gargoyle, candles,
-  tombstone. Priorizar CC0 y formatos convertibles a glTF.
+Búsqueda por tipo "3D Art" (acceso sin autenticación). Candidatos revisados y
+descargados (todos CC0):
+
+| id | página | autor | archivo origen | formato | conversión |
+|---|---|---|---|---|---|
+| statue.effigy | /content/knight-lying | yd | knight_statue_lying.blend | blend | assimp→glb |
+| statue.marble | /content/medieval-statue | Daniel Andersson (hreikin) | InnansorraStatueUpload.blend | blend | assimp→glb |
+| props.candles | /content/medieval-candles | AnyRPG | medievalcandles.blend | blend | assimp→glb |
+| props.tomb | /content/tomb | zerberros | tomb.blend | blend | assimp→glb |
+| props.mausoleum | /content/mausoleum1 | Paul Wortmann | export_obj/mausoleum_1_001.obj | obj | assimp→glb |
+| props.grave.1..6 | /content/cemetery | Savino | grave1..6.obj | obj | assimp→glb |
+
+Pipeline reproducible (`assimp` no trae CLI en Termux; se usa `libassimp.so` vía
+ctypes en `tools/convert-model.py`):
+
+```bash
+python3 tools/convert-model.py entrada.blend salida.glb   # conversión
+npx gltf-transform optimize salida.glb final.glb --simplify true \
+    --simplify-ratio 0.03 --texture-size 1024 --compress false
+```
+
+Resultados: estatua 66.4 MB → 581 KB (16.987 tris); yacente 1.03 MB → 477 KB
+(6.238 tris); mausoleo 208 KB → 133 KB; props menores < 11 KB.
+
+Pendiente (no descargable sin cuenta): un ángel funerario de mayor calidad
+(Sketchfab/Fab). La alternativa CC0 ya integrada es el caballero yacente `yd` y
+la estatua `Daniel Andersson`. Fuentes aún por rastrear: Smithsonian (403 desde
+este entorno; requiere clave de API o User-Agent no bloqueado).
 
 ## Criterio de selección (sec. 4 de o.txt)
 

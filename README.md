@@ -36,6 +36,7 @@ npm run typecheck  # solo tipos
 npm run smoke      # pruebas de logica sin navegador
 npm run check      # typecheck + build + smoke
 node tools/fetch-assets.mjs            # descarga CC0 (md5 verificado, actualiza manifest)
+bash tools/fetch-models.sh             # descarga+convierte+optimiza modelos CC0 (OpenGameArt)
 ```
 
 En el telefono, abre la URL de red que imprime Vite en Chrome.
@@ -45,32 +46,34 @@ En el telefono, abre la URL de red que imprime Vite en Chrome.
 - **Fase 1 — Auditar el proyecto:** hecho → `docs/asset-audit.md`.
 - **Fase 2 — Buscar y catalogar:** hecho → `docs/asset-sources.md`, consultadas Poly Haven, ambientCG, Sketchfab, Smithsonian, Fab.
 - **Fase 3 — Verificar licencias:** hecho → `docs/asset-license-report.md` (todo CC0, atribucion no).
-- **Fase 4 — Descargar primer conjunto:** hecho, 7 assets CC0 reales (ver abajo) con md5 verificado.
-- **Fase 6 — Integrar texturas PBR:** hecho. Muros=stone_wall_slates, yeso=clay_plaster, suelo=cobblestone_floor_08, madera=dark_wooden_planks, marmol=Marble012, oro=metal tintado; HDRI `citrus_orchard_puresky` como iluminacion ambiental.
-- **Fases 5, 7-14:** pendientes (conversion de modelos, arquitectura definitiva, escultura funeraria, exterior/cielo final, streaming/LOD completo, prueba en navegador, correcciones, altares/nuevas zonas).
+- **Fase 4 — Descargar primer conjunto:** hecho, 7 texturas/HDRI CC0 (md5 verificado) + 10 modelos CC0 de OpenGameArt.
+- **Fase 5 — Optimizar modelos:** hecho. `assimp`→GLB (`tools/convert-model.py`) y `gltf-transform` (estatua 66 MB → 0.58 MB).
+- **Fase 6 — Integrar texturas PBR y modelos:** hecho. Materiales PBR en la nave + HDRI; estatuas (marmol, caballero yacente), mausoleo, sepulcro, candelabro y 6 lapidas colocados desde `src/world/placements.ts`, sustituyendo los placeholders.
+- **Fases 7-14:** pendientes (arquitectura definitiva, angel funerario de calidad, exterior/cielo final, streaming/LOD fino, prueba en navegador, correcciones, nuevas zonas).
 
-## Assets reales descargados (CC0, `public/assets/`)
+## Assets reales (CC0, `public/assets/`)
 
-| id | archivo | tamaño |
-|---|---|---|
-| stone_wall_slates | textures/stone_wall_slates | ~2.1 MB |
-| floor_cobblestone | textures/floor_cobblestone | ~1.9 MB |
-| wood_dark_planks | textures/wood_dark_planks | ~2.0 MB |
-| plaster_wall | textures/plaster_wall | ~1.5 MB |
-| marble_012 | textures/marble_012 | ~4.6 MB |
-| metal_gold_base | textures/metal_gold_base | ~2.5 MB |
-| sky_citrus | sky/sky_citrus (HDRI) | ~1.2 MB |
-| character.huesped | characters/Huesped.glb | 0.98 MB *(colaborador)* |
-| character.huesped.v2 | characters/Huesped-v2.glb | 5.5 MB *(colaborador)* |
+Texturas y HDRI: `stone_wall_slates`, `floor_cobblestone`, `wood_dark_planks`,
+`plaster_wall`, `marble_012`, `metal_gold_base` y HDRI `sky_citrus`.
 
-El manifiesto generado: `docs/asset-manifest.json`.
+Modelos (OpenGameArt, CC0; convertidos/optimizados): `statues/marble_statue.glb`
+(Daniel Andersson), `statues/knight_effigy.glb` (yd), `props/mausoleum.glb`
+(Paul Wortmann), `props/tomb.glb` (zerberros), `props/candles.glb` (AnyRPG) y
+`props/grave_1..6.glb` (Savino).
+
+Modelos del colaborador (licencia por verificar): `characters/Huesped.glb` y
+`Huesped-v2.glb`.
+
+Manifiestos: `docs/asset-manifest.json`, `docs/asset-sources.md`,
+`docs/asset-license-report.md`, `docs/asset-audit.md`.
 
 ## Que es real y que es provisional
 
 Real: bucle de render, gestion de calidad, zona, colision, streaming con
 presupuesto de memoria y carga GLTF real, narrativa sin repeticion, controles
-tactiles, cielo procedural, sombras, audio por capas, y **materiales PBR
-reales** aplicados a la nave con **HDRI de iluminacion ambiental**.
+tactiles, cielo procedural, sombras, audio por capas, **materiales PBR
+reales** con **HDRI de iluminacion ambiental**, y **modelos reales** (estatuas,
+mausoleo, sepulcro, candelabro, lapidas) colocados en el mundo.
 
 Provisional: la geometria de la nave (muros, columnas, altar) sigue siendo
 volumetria modular intermedia con los materiales PBR ya asignados; las

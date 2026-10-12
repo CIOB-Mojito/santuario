@@ -38,7 +38,6 @@ export class World {
       { id: 'nave.shell', kind: 'architecture', url: null, priority: 'critical', bytes: 0, maxDistance: 200, notes: 'Cascara de la nave; pendiente de modelo real' },
       { id: 'nave.columns', kind: 'architecture', url: null, priority: 'high', bytes: 0, maxDistance: 120 },
       { id: 'nave.altar', kind: 'altar', url: null, priority: 'high', bytes: 0, maxDistance: 90 },
-      { id: 'sculptures.two', kind: 'statue', url: null, priority: 'medium', bytes: 0, maxDistance: 90 },
       { id: 'environment.ground', kind: 'environment', url: null, priority: 'critical', bytes: 0, maxDistance: 600 }
     ]);
   }
@@ -103,17 +102,11 @@ export class World {
     const altar = this.addBox(3.2, 1.4, 1.6, 0, 1.6, -halfLength + 5, this.mat.gold, true);
     this.landmarks.push({ object: altar, label: 'Altar de la Primera Memoria' });
 
-    // Dos esculturas flanqueando el altar.
-    this.addSculpture(-3.2, -halfLength + 7);
-    this.addSculpture(3.2, -halfLength + 7);
+    // Las esculturas y el candelabro son modelos reales (OpenGameArt, CC0)
+    // cargados por el streaming y colocados desde src/world/placements.ts.
 
-    // Velas: calor local del interior.
+    // Luz calida del interior (las velas reales se colocan aparte).
     for (const x of [-2.4, 2.4]) {
-      const candle = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.2, 1.1, 10), this.mat.candle);
-      candle.position.set(x, 1.35, -halfLength + 4.2);
-      candle.castShadow = false;
-      this.root.add(candle);
-
       const light = new THREE.PointLight(0xffb066, 6, 14, 2);
       light.position.set(x, 1.9, -halfLength + 4.2);
       this.root.add(light);
@@ -121,21 +114,6 @@ export class World {
     }
   }
 
-  private addSculpture(x: number, z: number): void {
-    const base = this.addBox(1.4, 1.6, 1.4, x, 1.3, z, this.mat.stoneCool, true);
-    base.castShadow = true;
-    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.65, 2.4, 12), this.mat.marble);
-    torso.position.set(x, 3.3, z);
-    torso.castShadow = true;
-    torso.receiveShadow = true;
-    this.root.add(torso);
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 14, 12), this.mat.marble);
-    head.position.set(x, 4.75, z);
-    head.castShadow = true;
-    this.root.add(head);
-    this.colliders.push(new THREE.Box3().setFromObject(torso));
-    this.landmarks.push({ object: torso, label: 'Vigilante de piedra' });
-  }
 
   private addColumn(x: number, y: number, z: number, height: number, collide: boolean): void {
     const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.8, height, 16), this.mat.stoneWall);
