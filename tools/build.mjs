@@ -1,4 +1,5 @@
 import { build } from 'esbuild';
+import { cpSync, existsSync } from 'node:fs';
 
 await build({
   entryPoints: ['src/main.ts'],
@@ -24,3 +25,8 @@ await build({
 });
 
 console.log('Build listo en dist/');
+
+if (existsSync('assets')) {
+  cpSync('assets', 'dist/assets', { recursive: true });
+  console.log('Assets copiados a dist/assets/');
+}

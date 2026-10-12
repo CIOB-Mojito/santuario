@@ -3,6 +3,7 @@ import { Ticker } from './Ticker';
 import { CameraRig } from './CameraRig';
 import { World } from '../scene/World';
 import { Hud } from '../ui/Hud';
+import { CameraControls } from '../ui/CameraControls';
 import {
   QUALITY_PROFILES,
   detectDeviceProfile,
@@ -22,6 +23,7 @@ export class Engine {
   private readonly rig: CameraRig;
   private readonly world: World;
   private readonly hud: Hud;
+  private readonly controls: CameraControls;
   private resizeObserver: ResizeObserver | null = null;
   private profile: QualityProfile;
   private statsAccum = 0;
@@ -40,8 +42,20 @@ export class Engine {
 
     this.rig = new CameraRig(this.renderer.gl.domElement, width / height);
     this.world = new World(this.profile);
+    void this.world.loadStatues().catch((error) => {
+      console.error('[santuario] fallo al cargar las estatuas del santuario.', error);
+    });
     this.hud = new Hud((next) => this.setQuality(next));
     this.hud.setQualityLevel(level);
+
+    this.controls = new CameraControls({
+      onToggleMode: () => this.toggleCameraMode(),
+      onMove: (direction, active) => {
+        if (active) this.rig.pressMove(direction);
+        else this.rig.releaseMove(direction);
+      }
+    });
+    this.controls.setMode(this.rig.currentMode);
 
     this.ticker = new Ticker();
     this.ticker.add((dt) => this.update(dt));
@@ -61,11 +75,18 @@ export class Engine {
     this.resize();
   }
 
+  toggleCameraMode(): void {
+    const next = this.rig.currentMode === 'ORBIT' ? 'FREE' : 'ORBIT';
+    this.rig.setMode(next);
+    this.controls.setMode(next);
+  }
+
   dispose(): void {
     this.ticker.dispose();
     this.resizeObserver?.disconnect();
     this.rig.dispose();
     this.world.dispose();
+    this.controls.dispose();
     this.hud.dispose();
     this.renderer.dispose();
   }

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { QualityProfile } from '../config/quality';
 import { Lighting } from './Lighting';
 import {
@@ -13,6 +14,22 @@ import {
   buildTower,
   disposeObject
 } from './placeholders';
+
+/**
+ * Modelos reales que sustituyen a las dos estatuas de angeles placeholder.
+ * Se sirven como archivos estaticos: en dev desde la raiz del proyecto y en
+ * produccion desde dist/assets (ver tools/build.mjs).
+ */
+export const STATUE_URLS = {
+  nave: '/assets/models/Huesped.glb',
+  capilla: '/assets/models/Huesped-v2.glb'
+} as const;
+
+interface StatueSlot {
+  readonly label: string;
+  readonly url: string;
+  readonly placeholder: THREE.Group;
+}
 
 export interface ZoneInfo {
   readonly id: string;
@@ -33,6 +50,7 @@ export class World {
 
   private readonly lighting: Lighting;
   private readonly flames: { mesh: THREE.Mesh; material: THREE.MeshStandardMaterial; phase: number }[] = [];
+  private readonly statueSlots: StatueSlot[] = [];
   private time = 0;
 
   constructor(profile: QualityProfile) {
@@ -119,6 +137,7 @@ export class World {
       (o as THREE.Mesh).castShadow = true;
     });
     this.scene.add(angel);
+    this.statueSlots.push({ label: 'nave principal', url: STATUE_URLS.nave, placeholder: angel });
 
     // Puerta placeholder en el muro oeste.
     const door = buildDoor();
@@ -168,6 +187,7 @@ export class World {
     angel.scale.setScalar(0.85);
     angel.rotation.y = Math.PI;
     this.scene.add(angel);
+    this.statueSlots.push({ label: 'capilla norte', url: STATUE_URLS.capilla, placeholder: angel });
 
     this.zones.push({ id: 'capilla_norte', label: 'Capilla norte', center: new THREE.Vector3(-26, 2, 6), radius: 10 });
   }
@@ -192,6 +212,72 @@ export class World {
     const material = flame.material as THREE.MeshStandardMaterial;
     this.scene.add(flame);
     this.flames.push({ mesh: flame, material, phase: Math.random() * Math.PI * 2 });
+  }
+
+  /**
+   * Carga asincrona de los modelos reales que sustituyen a las estatuas
+   * placeholder. Se invoca desde Engine despues de construir el mundo: mientras
+   * carga, el placeholder sigue visible; si el modelo llega, se reemplaza en la
+   * misma posicion, orientacion y tamano; si falla, se conserva el placeholder.
+   */
+  async loadStatues(): Promise<void> {
+    const loader = new GLTFLoader();
+    await Promise.all(this.statueSlots.map((slot) => this.loadStatue(loader, slot)));
+  }
+
+  private async loadStatue(loader: GLTFLoader, slot: StatueSlot): Promise<void> {
+    try {
+      const gltf = await loader.loadAsync(slot.url);
+      const model = gltf.scene;
+
+      const placeholderHeight = new THREE.Box3().setFromObject(slot.placeholder).getSize(new THREE.Vector3()).y;
+
+      model.updateMatrixWorld(true);
+      const nativeHeight = new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3()).y;
+      const scale = nativeHeight > 0 ? placeholderHeight / nativeHeight : 1;
+
+      model.position.copy(slot.placeholder.position);
+      model.rotation.copy(slot.placeholder.rotation);
+      model.scale.setScalar(scale);
+      model.updateMatrixWorld(true);
+
+      const scaledBox = new THREE.Box3().setFromObject(model);
+      model.position.y += slot.placeholder.position.y - scaledBox.min.y;
+
+      model.traverse((o) => {
+        const mesh = o as THREE.Mesh;
+        if (mesh.isMesh) {
+          mesh.castShadow = true;
+          mesh.receiveShadow = false;
+        }
+      });
+      model.name = 'HUESPED';
+      model.userData = {
+        kind: 'HUESPED',
+        interactive: true,
+        placeholder: false,
+        source: slot.url,
+        socket: slot.placeholder.userData.socket
+      };
+
+      this.scene.remove(slot.placeholder);
+      this.disposePlaceholderGeometry(slot.placeholder);
+      this.scene.add(model);
+    } catch (error) {
+      console.error(
+        `[santuario] no se pudo cargar la estatua "${slot.label}" desde ${slot.url}. ` +
+          'Se conserva el placeholder como alternativa.',
+        error
+      );
+    }
+  }
+
+  /** Libera solo la geometria del placeholder; los materiales de MAT son compartidos. */
+  private disposePlaceholderGeometry(root: THREE.Object3D): void {
+    root.traverse((obj) => {
+      const mesh = obj as THREE.Mesh;
+      if (mesh.geometry) mesh.geometry.dispose();
+    });
   }
 
   update(dt: number): void {
