@@ -13,6 +13,8 @@ export interface DebugStats {
   assets: string;
   audio: string;
   quality: string;
+  textureMapStatus: string;
+  envStatus: string;
 }
 
 /**
@@ -80,6 +82,8 @@ export class DebugPanel {
       `zona       ${stats.zone}\n` +
       `posicion   ${stats.position}\n` +
       `assets     ${stats.assets}\n` +
+      `PBR        ${stats.textureMapStatus}\n` +
+      `entorno    ${stats.envStatus}\n` +
       `audio      ${stats.audio}\n` +
       `calidad    ${stats.quality}`;
   }

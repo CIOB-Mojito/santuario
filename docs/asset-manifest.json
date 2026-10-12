@@ -1,0 +1,63 @@
+{
+  "generatedBy": "tools/fetch-assets.mjs",
+  "generatedAt": "2026-10-12T22:01:00.142Z",
+  "policy": "Solo CC0 verificable con descarga directa. Sin datos inventados.",
+  "totalBytes": 7268211,
+  "assets": [
+    {
+      "id": "marble_012",
+      "kind": "texture",
+      "category": "materials",
+      "source": "ambientCG",
+      "assetPage": "https://ambientcg.com/view?id=Marble012",
+      "author": "Lennart Demes (ambientCG)",
+      "license": "CC0-1.0",
+      "attributionRequired": false,
+      "resolution": "1K",
+      "files": [
+        {
+          "map": "Color",
+          "file": "public/assets/textures/marble_012/Marble012_1K-JPG_Color.jpg"
+        },
+        {
+          "map": "NormalGL",
+          "file": "public/assets/textures/marble_012/Marble012_1K-JPG_NormalGL.jpg"
+        },
+        {
+          "map": "Roughness",
+          "file": "public/assets/textures/marble_012/Marble012_1K-JPG_Roughness.jpg"
+        }
+      ],
+      "zipBytes": 4672904,
+      "status": "downloaded"
+    },
+    {
+      "id": "metal_gold_base",
+      "kind": "texture",
+      "category": "materials",
+      "source": "ambientCG",
+      "assetPage": "https://ambientcg.com/view?id=Metal048A",
+      "author": "Lennart Demes (ambientCG)",
+      "license": "CC0-1.0",
+      "attributionRequired": false,
+      "resolution": "1K",
+      "files": [
+        {
+          "map": "Color",
+          "file": "public/assets/textures/metal_gold_base/Metal048A_1K-JPG_Color.jpg"
+        },
+        {
+          "map": "NormalGL",
+          "file": "public/assets/textures/metal_gold_base/Metal048A_1K-JPG_NormalGL.jpg"
+        },
+        {
+          "map": "Roughness",
+          "file": "public/assets/textures/metal_gold_base/Metal048A_1K-JPG_Roughness.jpg"
+        }
+      ],
+      "zipBytes": 2595307,
+      "status": "downloaded"
+    }
+  ],
+  "errors": []
+}

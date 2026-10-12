@@ -4,8 +4,17 @@ Experiencia 3D interactiva para movil, construida en Termux (Android). Un
 recorrido breve por un santuario monumental: exterior luminoso de verano, un
 umbral, y una nave en penumbra calida.
 
-El diseno completo vive en `o.txt` (raiz del home). Este repositorio avanza por
-fases; no se pretende construir todo de una vez.
+La especificacion completa vive en `o.txt` (raiz del home): una **mision de
+assets reales** (localizar, verificar licencias, descargar, optimizar e
+integrar). No se aceptan placeholders como resultado: cada recurso cuenta como
+implementado solo si existe, tiene licencia comprobada, se carga y aparece en la
+escena.
+
+## Nota sobre el motor (desvio respecto a `o.txt`)
+
+`o.txt` indica **Babylon.js**; el proyecto actual está en **three.js** (como se
+vino construyendo). Los assets (GLB + texturas PBR + HDRI) son agnósticos del
+motor. Pendiente de decisión: migrar a Babylon.js o mantener three.js.
 
 ## Stack
 
@@ -13,6 +22,7 @@ fases; no se pretende construir todo de una vez.
 - **TypeScript 5.9** estricto (`strict`, `noUnusedLocals`, sin `any`).
 - **three.js 0.186**.
 - Smoke test propio con **esbuild** sobre `tools/smoke.ts`.
+- Descargador de assets: `tools/fetch-assets.mjs` (Poly Haven + ambientCG, CC0).
 
 TypeScript 7 no corre en Termux (falta el binario nativo para Android).
 
@@ -25,35 +35,57 @@ npm run build      # typecheck + build de produccion
 npm run typecheck  # solo tipos
 npm run smoke      # pruebas de logica sin navegador
 npm run check      # typecheck + build + smoke
+node tools/fetch-assets.mjs            # descarga CC0 (md5 verificado, actualiza manifest)
 ```
 
 En el telefono, abre la URL de red que imprime Vite en Chrome.
 
-## Estado por fases
+## Estado segun las fases de `o.txt`
 
-- **Fase 1 — Proyecto base:** hecho. Arranca, renderiza y detecta ausencia de WebGL con mensaje claro.
-- **Fase 2 — Arquitectura de carpetas:** hecho. `core/ config/ assets/ streaming/ world/ lighting/ effects/ interaction/ audio/ player/ narrative/ ui/ debug/`.
-- **Fase 3 — Camara y controles tactiles:** hecho. Camara FPS con balanceo de cabeza, joystick virtual, area de mirada e interaccion por toque.
-- Fases 4-14 (assets reales, streaming de modelos, LOD, materiales PBR, iluminacion final, seccion definitiva, optimizacion, evaluacion, narrativa completa, segunda zona): **pendientes**.
+- **Fase 1 — Auditar el proyecto:** hecho → `docs/asset-audit.md`.
+- **Fase 2 — Buscar y catalogar:** hecho → `docs/asset-sources.md`, consultadas Poly Haven, ambientCG, Sketchfab, Smithsonian, Fab.
+- **Fase 3 — Verificar licencias:** hecho → `docs/asset-license-report.md` (todo CC0, atribucion no).
+- **Fase 4 — Descargar primer conjunto:** hecho, 7 assets CC0 reales (ver abajo) con md5 verificado.
+- **Fase 6 — Integrar texturas PBR:** hecho. Muros=stone_wall_slates, yeso=clay_plaster, suelo=cobblestone_floor_08, madera=dark_wooden_planks, marmol=Marble012, oro=metal tintado; HDRI `citrus_orchard_puresky` como iluminacion ambiental.
+- **Fases 5, 7-14:** pendientes (conversion de modelos, arquitectura definitiva, escultura funeraria, exterior/cielo final, streaming/LOD completo, prueba en navegador, correcciones, altares/nuevas zonas).
 
-Controles: joystick en la mitad izquierda, mirada en la mitad derecha, toque
-sin arrastre interactua. En escritorio: WASD/flechas, Shift para correr,
-arrastrar para mirar, E para interactuar.
+## Assets reales descargados (CC0, `public/assets/`)
+
+| id | archivo | tamaño |
+|---|---|---|
+| stone_wall_slates | textures/stone_wall_slates | ~2.1 MB |
+| floor_cobblestone | textures/floor_cobblestone | ~1.9 MB |
+| wood_dark_planks | textures/wood_dark_planks | ~2.0 MB |
+| plaster_wall | textures/plaster_wall | ~1.5 MB |
+| marble_012 | textures/marble_012 | ~4.6 MB |
+| metal_gold_base | textures/metal_gold_base | ~2.5 MB |
+| sky_citrus | sky/sky_citrus (HDRI) | ~1.2 MB |
+| character.huesped | characters/Huesped.glb | 0.98 MB *(colaborador)* |
+| character.huesped.v2 | characters/Huesped-v2.glb | 5.5 MB *(colaborador)* |
+
+El manifiesto generado: `docs/asset-manifest.json`.
 
 ## Que es real y que es provisional
 
 Real: bucle de render, gestion de calidad, zona, colision, streaming con
-presupuesto de memoria y carga GLTF real, narrativa sin repeticion, controles,
-cielo procedural, sombras y audio por capas (sin muestras todavia).
+presupuesto de memoria y carga GLTF real, narrativa sin repeticion, controles
+tactiles, cielo procedural, sombras, audio por capas, y **materiales PBR
+reales** aplicados a la nave con **HDRI de iluminacion ambiental**.
 
-Integrado del colaborador: `public/assets/characters/Huesped.glb` (0.9 MB) y
-`Huesped-v2.glb` (5.5 MB). Se cargan con `GLTFLoader`, se normalizan a escala
-humana y se apoyan en el suelo de la nave. Con el presupuesto movil actual
-(3 MB), solo entra el modelo ligero; el pesado queda en cola a proposito.
+Provisional: la geometria de la nave (muros, columnas, altar) sigue siendo
+volumetria modular intermedia con los materiales PBR ya asignados; las
+esculturas siguen siendo figuras de cilindro. Pendientes: escultura/ángel CC0,
+props ornamentales, audio, arquitectura definitiva, prueba visual en el
+dispositivo.
 
-Provisional: la geometria de la nave son masas con materiales intencionados pero
-sin texturas. La lista de assets gratuitos (Poly Haven, ambientCG, Sketchfab,
-etc.) se integrara en la fase de assets.
+## Bloqueos conocidos
+
+- Sketchfab y Fab exigen autenticacion/autorizacion: se registra el bloqueo y se
+  busca en fuentes accesibles (OpenGameArt, Smithsonian), sin inventar APIs.
+- No hay navegador headless en el entorno: la prueba visual (FASE 11) requiere
+  abrir la URL en Chrome Android.
+- Los GLB `Huesped*` del colaborador no tienen licencia registrada → por
+  verificar antes de publicar con esos modelos.
 
 ## Integracion del commit del colaborador
 

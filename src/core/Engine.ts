@@ -7,8 +7,10 @@ import { Sky } from '../lighting/Sky';
 import { LightingSystem } from '../lighting/LightingSystem';
 import { World } from '../world/World';
 import { zoneAt, type ZoneDef } from '../world/zones';
-import { AssetRegistry } from '../assets/AssetRegistry';
+import { AssetRegistry } from '../assets/assetRegistry';
 import { ASSETS, MOBILE_BUDGET_BYTES } from '../assets/manifest';
+import { createMaterialSet, disposeMaterialSet, type MaterialSet } from '../assets/materials';
+import { applyPbrTextures, loadEnvironment } from '../assets/textureLibrary';
 import { StreamingManager } from '../streaming/StreamingManager';
 import { InteractionSystem } from '../interaction/InteractionSystem';
 import { AudioSystem } from '../audio/AudioSystem';
@@ -34,6 +36,7 @@ export class Engine {
   private readonly ticker = new Ticker();
   private readonly renderer: Renderer;
   private readonly registry = new AssetRegistry();
+  private readonly materials: MaterialSet = createMaterialSet();
   private readonly streaming: StreamingManager;
   private readonly gltf = new GLTFLoader();
   private readonly interaction = new InteractionSystem(6);
@@ -56,6 +59,8 @@ export class Engine {
   private fogTarget = 0.0016;
   private currentZone: ZoneDef;
   private streamAccumulator = 0;
+  private textureStatus = 'pendiente';
+  private envStatus = 'pendiente';
 
   constructor(container: HTMLElement) {
     this.container = container;
@@ -66,7 +71,7 @@ export class Engine {
     container.appendChild(this.renderer.canvas);
 
     this.scene.fog = this.fog;
-    this.world = new World(this.scene, this.registry);
+    this.world = new World(this.scene, this.registry, this.materials);
     this.world.build();
     this.lighting = new LightingSystem(this.scene, this.sky, profile);
     this.scene.add(this.sky.mesh);
@@ -123,6 +128,25 @@ export class Engine {
     this.resize();
     this.ticker.add(this.update);
     this.ticker.start();
+    void this.loadAssets();
+  }
+
+  /**
+   * Carga progresiva de assets reales (secciones 8, 15 y 21). No bloquea el
+   * arranque: las texturas y el HDRI llegan cuando estan listos.
+   */
+  private async loadAssets(): Promise<void> {
+    try {
+      const envFile = await loadEnvironment(this.scene);
+      this.envStatus = `HDRI ${envFile}`;
+    } catch (error) {
+      this.envStatus = `fallo: ${error instanceof Error ? error.message : String(error)}`;
+    }
+
+    const report = await applyPbrTextures(this.materials);
+    this.textureStatus = report.failed.length === 0
+      ? `${report.applied.length}/6 PBR`
+      : `${report.applied.length}/6 PBR (${report.failed.length} fallos)`;
   }
 
   private readonly onFirstGesture = (): void => {
@@ -250,7 +274,9 @@ export class Engine {
       position: `${p.x.toFixed(1)}, ${p.y.toFixed(1)}, ${p.z.toFixed(1)}`,
       assets: `${this.registry.size} reg · ${this.streaming.loadedCount} carg · ${this.streaming.queueLength} en cola`,
       audio,
-      quality: this.quality.replace('QUALITY_', '').toLowerCase()
+      quality: this.quality.replace('QUALITY_', '').toLowerCase(),
+      textureMapStatus: this.textureStatus,
+      envStatus: this.envStatus
     };
   }
 
@@ -268,6 +294,7 @@ export class Engine {
     this.sky.dispose();
     this.world.dispose();
     this.audio.dispose();
+    disposeMaterialSet(this.materials);
     this.renderer.dispose();
     this.scene.clear();
   }

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { AssetEntry } from '../assets/types';
-import type { AssetRegistry } from '../assets/AssetRegistry';
+import type { AssetRegistry } from '../assets/assetRegistry';
 
 export type AssetLoader = (entry: AssetEntry) => Promise<unknown>;
 export type AssetLoadedHandler = (entry: AssetEntry, object: unknown) => void;

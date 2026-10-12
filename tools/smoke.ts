@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { AssetRegistry } from '../src/assets/AssetRegistry';
+import { AssetRegistry } from '../src/assets/assetRegistry';
 import { StreamingManager } from '../src/streaming/StreamingManager';
 import { zoneAt } from '../src/world/zones';
 import { Player } from '../src/player/Player';
