@@ -14,6 +14,7 @@ export class KeyboardControls {
   private dragging = false;
   private lastX = 0;
   private lastY = 0;
+  private enabled = true;
   private readonly onPointerMove: (e: PointerEvent) => void;
   private readonly onPointerDown: (e: PointerEvent) => void;
   private readonly onPointerUp: (e: PointerEvent) => void;
@@ -25,6 +26,7 @@ export class KeyboardControls {
     this.input = input;
 
     this.onKeyDown = (e) => {
+      if (!this.enabled) return;
       const repeat = this.pressed.has(e.code);
       this.pressed.add(e.code);
       if (e.code === 'KeyE') interaction.trigger();
@@ -37,6 +39,7 @@ export class KeyboardControls {
     this.onKeyUp = (e) => this.pressed.delete(e.code);
 
     this.onPointerDown = (e) => {
+      if (!this.enabled) return;
       if (e.pointerType === 'touch') return;
       onGesture?.();
       if (e.button !== 0) return;
@@ -45,12 +48,13 @@ export class KeyboardControls {
       this.lastY = e.clientY;
     };
     this.onPointerMove = (e) => {
-      if (!this.dragging) return;
+      if (!this.enabled || !this.dragging) return;
       this.camera.look(e.clientX - this.lastX, e.clientY - this.lastY);
       this.lastX = e.clientX;
       this.lastY = e.clientY;
     };
     this.onPointerUp = () => {
+      if (!this.enabled) return;
       this.dragging = false;
     };
 
@@ -60,6 +64,18 @@ export class KeyboardControls {
     target.addEventListener('pointermove', this.onPointerMove);
     target.addEventListener('pointerup', this.onPointerUp);
     target.addEventListener('pointercancel', this.onPointerUp);
+  }
+
+  /** Apaga/enciende la entrada (el Modo Constructor la congela). */
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
+    if (!enabled) {
+      this.pressed.clear();
+      this.dragging = false;
+      this.input.keyboard.set(0, 0);
+      this.input.keyboardActive = false;
+      this.input.setKeyboardRunning(false);
+    }
   }
 
   update(): void {

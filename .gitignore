@@ -1,5 +1,7 @@
 node_modules/
 dist/
 .smoke.mjs
+.grimoire-test.mjs
+.builder-test.mjs
 *.log
 .DS_Store

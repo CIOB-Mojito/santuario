@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 export interface Interactable {
   readonly object: THREE.Object3D;
-  readonly label: string;
+  label: string;
   readonly onClick: () => void;
 }
 
@@ -26,6 +26,13 @@ export class InteractionSystem {
 
   add(item: Interactable): void {
     this.items.push(item);
+  }
+
+  /** Retira un interactable por identidad (p.ej. al borrar un modelo). */
+  remove(object: THREE.Object3D): void {
+    const index = this.items.findIndex((item) => item.object === object);
+    if (index >= 0) this.items.splice(index, 1);
+    if (this.current && this.current.object === object) this.current = null;
   }
 
   update(camera: THREE.Camera): void {

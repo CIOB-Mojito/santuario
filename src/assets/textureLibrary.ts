@@ -60,7 +60,10 @@ export interface TextureReport {
 }
 
 /** Aplica las texturas reales a los materiales. Nunca lanza: registra fallos. */
-export async function applyPbrTextures(materials: MaterialSet): Promise<TextureReport> {
+export async function applyPbrTextures(
+  materials: MaterialSet,
+  onProgress?: (done: number, total: number) => void
+): Promise<TextureReport> {
   const loader = new THREE.TextureLoader();
   const report: TextureReport = { applied: [], failed: [] };
   const jobs: { key: string; material: THREE.MeshStandardMaterial; spec: MapSpec; rx: number; ry: number }[] = [
@@ -71,6 +74,8 @@ export async function applyPbrTextures(materials: MaterialSet): Promise<TextureR
     { key: 'marble', material: materials.marble, spec: SPECS.marble, rx: 1, ry: 1 },
     { key: 'gold', material: materials.gold, spec: SPECS.metal, rx: 3, ry: 2 }
   ];
+  const total = jobs.length;
+  let done = 0;
   await Promise.all(
     jobs.map(async (job) => {
       try {
@@ -79,6 +84,8 @@ export async function applyPbrTextures(materials: MaterialSet): Promise<TextureR
       } catch (error) {
         report.failed.push({ material: job.key, error: error instanceof Error ? error.message : String(error) });
       }
+      done++;
+      onProgress?.(done, total);
     })
   );
   return report;

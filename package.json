@@ -10,6 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "smoke": "esbuild tools/smoke.ts --bundle --platform=node --format=esm --outfile=.smoke.mjs --log-level=error && node .smoke.mjs",
+    "test:grimoire": "esbuild tools/grimoire-test.ts --bundle --platform=node --format=esm --outfile=.grimoire-test.mjs --log-level=error && node .grimoire-test.mjs",
+    "test:builder": "esbuild tools/builder-test.ts --bundle --platform=node --format=esm --outfile=.builder-test.mjs --log-level=error && node .builder-test.mjs",
     "check": "tsc --noEmit && vite build && npm run smoke"
   },
   "dependencies": {

@@ -25,6 +25,7 @@ export class TouchControls {
   private lookMoved = false;
   private moveMoved = false;
   private readonly maxRadius = 52;
+  private enabled = true;
 
   constructor(input: InputState, camera: CameraController, interaction: InteractionSystem) {
     this.input = input;
@@ -35,6 +36,25 @@ export class TouchControls {
 
   get active(): boolean {
     return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  }
+
+  /** Apaga/enciende los controles (el Modo Constructor los congela). */
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
+    if (enabled) {
+      this.hint.style.display = 'block';
+      if (this.active) this.jump.style.display = '';
+      return;
+    }
+    this.moveId = null;
+    this.lookId = null;
+    this.base.style.display = 'none';
+    this.knob.style.display = 'none';
+    this.hint.style.display = 'none';
+    this.jump.style.display = 'none';
+    this.input.touchActive = false;
+    this.input.touch.set(0, 0);
+    this.input.setTouchRunning(false);
   }
 
   mount(parent: HTMLElement): void {
@@ -100,11 +120,13 @@ export class TouchControls {
   }
 
   private readonly onJump = (e: PointerEvent): void => {
+    if (!this.enabled) return;
     e.preventDefault();
     this.input.requestJump();
   };
 
   private readonly onDown = (e: PointerEvent): void => {
+    if (!this.enabled) return;
     if (e.pointerType !== 'touch') return;
     const el = e.target as HTMLElement | null;
     if (el && el.closest('button')) return; // no robar toques a la interfaz
@@ -130,6 +152,7 @@ export class TouchControls {
   };
 
   private readonly onMove = (e: PointerEvent): void => {
+    if (!this.enabled) return;
     if (e.pointerId === this.moveId) {
       let dx = e.clientX - this.origin.x;
       let dy = e.clientY - this.origin.y;
@@ -154,6 +177,7 @@ export class TouchControls {
   };
 
   private readonly onUp = (e: PointerEvent): void => {
+    if (!this.enabled) return;
     if (e.pointerId === this.moveId) {
       this.moveId = null;
       this.base.style.display = 'none';

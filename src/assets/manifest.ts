@@ -6,7 +6,7 @@ import type { AssetDescriptor } from './types';
  *
  * Modelos:
  * - Huesped/Huesped-v2 del commit 8f55b36 del colaborador (licencia por
- *   verificar); el pesado queda con prioridad baja.
+ *   verificar); ambos son prioritarios porque forman la fila de personajes.
  * - Estatuas y props descargados de OpenGameArt (CC0), convertidos a GLB con
  *   libassimp y optimizados con gltf-transform (ver docs/asset-sources.md).
  */
@@ -24,7 +24,7 @@ export const ASSETS: readonly AssetDescriptor[] = [
     id: 'character.huesped.v2',
     kind: 'character',
     url: 'assets/characters/Huesped-v2.glb',
-    priority: 'low',
+    priority: 'high',
     bytes: 5554652,
     maxDistance: 24,
     notes: 'Huesped v2, alta densidad (aportado por el colaborador)'
@@ -175,4 +175,7 @@ export const ASSETS: readonly AssetDescriptor[] = [
   }
 ];
 
-export const MOBILE_BUDGET_BYTES = 6 * 1024 * 1024;
+// Presupuesto de residencia del streaming. Con el catalogo real (dos Huesped,
+// estatuas y props) 6 MB dejaba fuera a media escena: un Huesped y su v2 ya
+// suman 6.5 MB. 24 MB cubre el arbol completo sin descargar casi todo.
+export const MOBILE_BUDGET_BYTES = 24 * 1024 * 1024;

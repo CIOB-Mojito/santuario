@@ -15,6 +15,15 @@ export class World {
   readonly colliders: THREE.Box3[] = [];
   readonly interiorLights: THREE.PointLight[] = [];
   readonly landmarks: { object: THREE.Object3D; label: string }[] = [];
+  /** Objetos agrupados seleccionables desde el Modo Constructor (panel y rayo). */
+  readonly selectables: { object: THREE.Object3D; label: string }[] = [];
+  /**
+   * Cascara de la nave (muros, contrafuertes, fachadas, cubierta, armazon,
+   * columnas y roseton) agrupada como UNA sola entrada seleccionable, en
+   * lugar de exponer cada malla interna. Suelos y peana quedan fuera y en
+   * layer 1 para que el rayo de seleccion no los marque.
+   */
+  readonly shell = new THREE.Group();
 
   private readonly scene: THREE.Scene;
   private readonly registry: AssetRegistry;
@@ -24,7 +33,9 @@ export class World {
     this.scene = scene;
     this.registry = registry;
     this.mat = materials;
+    this.shell.name = 'nave.estructura';
     scene.add(this.root);
+    this.root.add(this.shell);
   }
 
   build(): void {
@@ -48,10 +59,14 @@ export class World {
     ground.rotation.x = -Math.PI / 2;
     ground.position.y = SETTINGS.world.floorHeight - 0.02;
     ground.receiveShadow = true;
+    ground.layers.set(1);
+    ground.name = 'suelo.exterior';
     this.root.add(ground);
 
     // Terrado que sostiene la nave: da un borde claro al recorrido.
-    this.addBox(150, 0.5, 150, 0, -0.26, 0, this.mat.stoneCool, false);
+    const terrace = this.addBox(150, 0.5, 150, 0, -0.26, 0, this.mat.stoneCool, false, this.root);
+    terrace.layers.set(1);
+    terrace.name = 'suelo.terrado';
   }
 
   private buildNave(): void {
@@ -60,8 +75,11 @@ export class World {
     const length = 64;
     const halfLength = length / 2;
 
-    // Suelo interior, ligeramente elevado.
-    this.addBox(halfWidth * 2, 0.4, length, 0, 0.2, 0, this.mat.floor, false);
+    // Suelo interior, ligeramente elevado. Es colisionable para que el jugador
+    // y los modelos colocados queden apoyados en su cara superior (y=0.4).
+    const floor = this.addBox(halfWidth * 2, 0.4, length, 0, 0.2, 0, this.mat.floor, true, this.root);
+    floor.layers.set(1);
+    floor.name = 'suelo.nave';
 
     // Muros laterales con contrafuertes (escalonados hacia el exterior).
     for (const side of [-1, 1]) {
@@ -103,9 +121,13 @@ export class World {
     this.addRoseWindow(halfLength, wallHeight);
 
     // Altar al fondo, sobre plataforma.
-    this.addBox(7, 0.5, 4, 0, 0.65, -halfLength + 5, this.mat.stoneCool, true);
-    const altar = this.addBox(3.2, 1.4, 1.6, 0, 1.6, -halfLength + 5, this.mat.gold, true);
+    const dais = this.addBox(7, 0.5, 4, 0, 0.65, -halfLength + 5, this.mat.stoneCool, true, this.root);
+    dais.layers.set(1);
+    const altar = this.addBox(3.2, 1.4, 1.6, 0, 1.6, -halfLength + 5, this.mat.gold, true, this.root);
+    altar.userData.builderName = 'Altar de la Primera Memoria';
     this.landmarks.push({ object: altar, label: 'Altar de la Primera Memoria' });
+    this.selectables.push({ object: this.shell, label: 'Nave (estructura)' });
+    this.selectables.push({ object: altar, label: 'Altar de la Primera Memoria' });
 
     // Las esculturas y el candelabro son modelos reales (OpenGameArt, CC0)
     // cargados por el streaming y colocados desde src/world/placements.ts.
@@ -127,13 +149,13 @@ export class World {
       const tie = new THREE.Mesh(new THREE.BoxGeometry(halfWidth * 2 + 1, 0.35, 0.45), this.mat.wood);
       tie.position.set(0, beamY, z);
       tie.castShadow = true;
-      this.root.add(tie);
+      this.shell.add(tie);
     }
     for (const side of [-1, 1]) {
       const purlin = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, halfLength * 2 - 4), this.mat.wood);
       purlin.position.set(side * 4.6, beamY + 0.6, 0);
       purlin.castShadow = true;
-      this.root.add(purlin);
+      this.shell.add(purlin);
     }
   }
 
@@ -144,18 +166,18 @@ export class World {
     const ring = new THREE.Mesh(new THREE.TorusGeometry(2.5, 0.35, 10, 32), this.mat.stoneCool);
     ring.position.set(0, y, z);
     ring.castShadow = true;
-    this.root.add(ring);
+    this.shell.add(ring);
 
     const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.5, 16), this.mat.stoneCool);
     hub.rotation.x = Math.PI / 2;
     hub.position.set(0, y, z);
-    this.root.add(hub);
+    this.shell.add(hub);
 
     for (let i = 0; i < 6; i++) {
       const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.22, 5, 0.3), this.mat.stoneCool);
       spoke.position.set(0, y, z - 0.05);
       spoke.rotation.z = (i * Math.PI) / 6;
-      this.root.add(spoke);
+      this.shell.add(spoke);
     }
   }
 
@@ -164,29 +186,45 @@ export class World {
     shaft.position.set(x, y + height / 2, z);
     shaft.castShadow = true;
     shaft.receiveShadow = true;
-    this.root.add(shaft);
+    this.shell.add(shaft);
 
     const cap = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.5, 1.8), this.mat.stoneCool);
     cap.position.set(x, y + height + 0.25, z);
     cap.castShadow = true;
-    this.root.add(cap);
+    this.shell.add(cap);
 
     if (collide) {
       this.colliders.push(new THREE.Box3().setFromObject(shaft));
     }
   }
 
-  private addBox(w: number, h: number, d: number, x: number, y: number, z: number, material: THREE.Material, collide: boolean): THREE.Mesh {
+  private addBox(w: number, h: number, d: number, x: number, y: number, z: number, material: THREE.Material, collide: boolean, parent: THREE.Object3D = this.shell): THREE.Mesh {
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
     mesh.position.set(x, y, z);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
-    this.root.add(mesh);
+    parent.add(mesh);
     if (collide) {
       mesh.updateMatrixWorld(true);
       this.colliders.push(new THREE.Box3().setFromObject(mesh));
     }
     return mesh;
+  }
+
+  /**
+   * Altura de la superficie pisable en (x, z). Solo considera obstaculos bajos
+   * (losas, plataformas, escalones) y nunca muros ni columnas, para poder
+   * apoyar encima personajes, estatuas y props de forma automatica.
+   */
+  surfaceHeightAt(x: number, z: number, radius = 0.6): number {
+    let top: number = SETTINGS.world.floorHeight;
+    for (const box of this.colliders) {
+      if (box.max.y - box.min.y > 2) continue;
+      if (x + radius < box.min.x || x - radius > box.max.x) continue;
+      if (z + radius < box.min.z || z - radius > box.max.z) continue;
+      if (box.max.y > top) top = box.max.y;
+    }
+    return top;
   }
 
   /** Relaciona una posicion con una zona (usada por audio, niebla y narrativa). */
